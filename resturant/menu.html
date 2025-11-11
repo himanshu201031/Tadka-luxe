@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - TADKA Luxe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #3B0A45 0%, #1B1B1B 50%, #3B0A45 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .dish-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .dish-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+        
+        .filter-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            color: #3B0A45;
+            font-weight: 600;
+        }
+        
+        .spice-indicator {
+            display: inline-flex;
+            gap: 2px;
+        }
+        
+        .spice-level {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+        
+        .spice-level.active {
+            background: #FFD700;
+        }
+        
+        .modal-backdrop {
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .modal-content {
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-content.show {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        
+        .add-to-cart-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .add-to-cart-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .add-to-cart-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                        <span class="text-royal-maroon font-bold text-xl">T</span>
+                    </div>
+                    <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-gold-primary transition-colors duration-300">Home</a>
+                    <a href="menu.html" class="text-gold-primary font-semibold">Menu</a>
+                    <a href="dashboard.html" class="hover:text-gold-primary transition-colors duration-300">Dashboard</a>
+                    <a href="cart.html" class="hover:text-gold-primary transition-colors duration-300">Cart</a>
+                    <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-full font-semibold hover:golden-glow transition-all duration-300">
+                        Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-12 reveal-up">
+                <h1 class="font-display text-5xl md:text-6xl font-bold gradient-text mb-6" data-splitting>
+                    Premium Menu
+                </h1>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">
+                    Discover our curated selection of authentic Indian dishes, crafted with passion and premium ingredients
+                </p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="mb-12 reveal-up">
+                <div class="glass-card rounded-3xl p-6 mb-8">
+                    <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <!-- Search -->
+                        <div class="relative flex-1 max-w-md">
+                            <input type="text" id="dish-search" placeholder="Search dishes..." 
+                                   class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 pl-12 text-ivory placeholder-ivory/60 focus:outline-none focus:border-gold-primary">
+                            <svg class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gold-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- Sort Options -->
+                        <select id="sort-select" class="bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory focus:outline-none focus:border-gold-primary">
+                            <option value="popular">Most Popular</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button class="filter-btn active bg-royal-maroon/30 border border-gold-primary/30 rounded-full px-6 py-3 hover:bg-gold-primary/20 transition-all" data-category="all">
+                        All Dishes
+                    </button>
+                    <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-full px-6 py-3 hover:bg-gold-primary/20 transition-all" data-category="appetizers">
+                        Appetizers
+                    </button>
+                    <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-full px-6 py-3 hover:bg-gold-primary/20 transition-all" data-category="main-course">
+                        Main Course
+                    </button>
+                    <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-full px-6 py-3 hover:bg-gold-primary/20 transition-all" data-category="biryanis">
+                        Biryanis
+                    </button>
+                    <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-full px-6 py-3 hover:bg-gold-primary/20 transition-all" data-category="desserts">
+                        Desserts
+                    </button>
+                    <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-full px-6 py-3 hover:bg-gold-primary/20 transition-all" data-category="beverages">
+                        Beverages
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12" id="menu-grid">
+                <!-- Butter Chicken -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="main-course" data-price="385" data-rating="4.8">
+                    <img src="resources/dish-butter-chicken.jpg" alt="Butter Chicken" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Butter Chicken</h3>
+                            <div class="spice-indicator" data-level="2">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Rich, creamy tomato-based curry with tender chicken pieces, aromatic spices, and finished with butter</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.8</span>
+                                <span class="text-xs opacity-60">(2.1k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Popular</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹385</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hyderabadi Biryani -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="biryanis" data-price="425" data-rating="4.9">
+                    <img src="resources/dish-biryani.jpg" alt="Hyderabadi Biryani" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Hyderabadi Biryani</h3>
+                            <div class="spice-indicator" data-level="3">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Aromatic basmati rice layered with marinated chicken, saffron, and traditional Hyderabadi spices</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.9</span>
+                                <span class="text-xs opacity-60">(3.2k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full">Chef's Special</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹425</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Masala Dosa -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="main-course" data-price="185" data-rating="4.6">
+                    <img src="resources/dish-masala-dosa.jpg" alt="Masala Dosa" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Masala Dosa</h3>
+                            <div class="spice-indicator" data-level="2">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Crispy rice crepe filled with spiced potato mixture, served with chutney and sambar</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.6</span>
+                                <span class="text-xs opacity-60">(1.8k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">South Indian</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹185</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paneer Tikka -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="appetizers" data-price="285" data-rating="4.7">
+                    <img src="resources/dish-paneer-tikka.jpg" alt="Paneer Tikka" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Paneer Tikka</h3>
+                            <div class="spice-indicator" data-level="3">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Grilled cottage cheese cubes marinated in yogurt and aromatic spices, served with mint chutney</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.7</span>
+                                <span class="text-xs opacity-60">(1.5k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full">Vegetarian</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹285</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Samosa -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="appetizers" data-price="125" data-rating="4.5">
+                    <img src="resources/dish-samosa.jpg" alt="Samosa" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Samosa</h3>
+                            <div class="spice-indicator" data-level="2">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Crispy triangular pastry filled with spiced potatoes and peas, served with chutneys</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.5</span>
+                                <span class="text-xs opacity-60">(2.3k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full">Street Food</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹125</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dal Makhani -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="main-course" data-price="295" data-rating="4.6">
+                    <img src="resources/dish-dal-makhani.jpg" alt="Dal Makhani" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Dal Makhani</h3>
+                            <div class="spice-indicator" data-level="1">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Creamy black lentils slow-cooked with butter and aromatic spices, finished with cream</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.6</span>
+                                <span class="text-xs opacity-60">(1.9k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Comfort Food</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹295</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Palak Paneer -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="main-course" data-price="325" data-rating="4.4">
+                    <img src="resources/dish-palak-paneer.jpg" alt="Palak Paneer" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Palak Paneer</h3>
+                            <div class="spice-indicator" data-level="1">
+                                <div class="spice-level active"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Fresh spinach curry with soft paneer cubes, seasoned with aromatic spices</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.4</span>
+                                <span class="text-xs opacity-60">(1.6k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Healthy</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹325</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gulab Jamun -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="desserts" data-price="145" data-rating="4.8">
+                    <img src="resources/dish-gulab-jamun.jpg" alt="Gulab Jamun" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Gulab Jamun</h3>
+                            <div class="spice-indicator" data-level="0">
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Soft milk solids dumplings soaked in rose-scented sugar syrup, garnished with nuts</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.8</span>
+                                <span class="text-xs opacity-60">(2.7k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-pink-500/20 text-pink-400 px-2 py-1 rounded-full">Dessert</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹145</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jalebi -->
+                <div class="dish-card glass-card rounded-3xl overflow-hidden reveal-up" data-category="desserts" data-price="95" data-rating="4.7">
+                    <img src="resources/dish-jalebi.jpg" alt="Jalebi" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-display text-xl font-bold">Jalebi</h3>
+                            <div class="spice-indicator" data-level="0">
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                                <div class="spice-level"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm opacity-80 mb-4">Crispy spiral sweets soaked in saffron syrup, served warm with garnished pistachios</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-gold-primary">★ 4.7</span>
+                                <span class="text-xs opacity-60">(1.4k reviews)</span>
+                            </div>
+                            <span class="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full">Sweet</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹95</span>
+                            <button class="add-to-cart-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dish Detail Modal -->
+    <div id="dish-modal" class="fixed inset-0 modal-backdrop z-50 hidden items-center justify-center p-4">
+        <div class="modal-content glass-card rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 id="modal-title" class="font-display text-4xl font-bold gradient-text"></h2>
+                    <button id="close-modal" class="text-ivory hover:text-gold-primary transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <img id="modal-image" src="" alt="" class="w-full h-80 object-cover rounded-2xl mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-4">
+                                <span id="modal-rating" class="text-gold-primary font-semibold"></span>
+                                <span id="modal-reviews" class="text-sm opacity-60"></span>
+                            </div>
+                            <div id="modal-spice-level" class="spice-indicator"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="mb-6">
+                            <h3 class="font-display text-2xl font-bold mb-3">Description</h3>
+                            <p id="modal-description" class="text-lg leading-relaxed opacity-90"></p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-display text-2xl font-bold mb-3">Ingredients</h3>
+                            <div id="modal-ingredients" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-display text-2xl font-bold mb-3">Nutrition Info</h3>
+                            <div id="modal-nutrition" class="grid grid-cols-2 gap-4"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div id="modal-price" class="text-3xl font-bold text-gold-primary mb-2"></div>
+                                <div class="text-sm opacity-60">Serves 1-2 people</div>
+                            </div>
+                            <button id="modal-add-to-cart" class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-8 py-4 rounded-lg font-semibold text-lg hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">T</span>
+                </div>
+                <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+            </div>
+            <p class="text-sm opacity-60">
+                © 2025 TADKA Luxe. Redefining premium Indian dining experiences.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Menu page specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initMenuAnimations();
+            initFilters();
+            initSearch();
+            initModal();
+            initCart();
+        });
+
+        function initMenuAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 50);
+            });
+
+            // Text splitting animation
+            Splitting();
+            const splitText = document.querySelector('[data-splitting]');
+            if (splitText) {
+                const chars = splitText.querySelectorAll('.char');
+                gsap.fromTo(chars, {
+                    opacity: 0,
+                    y: 50,
+                    rotateZ: 90
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    rotateZ: 0,
+                    duration: 0.8,
+                    stagger: 0.03,
+                    ease: "back.out(1.7)"
+                });
+            }
+        }
+
+        function initFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const dishCards = document.querySelectorAll('.dish-card');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active button
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const category = btn.dataset.category;
+                    
+                    // Filter dishes
+                    dishCards.forEach(card => {
+                        if (category === 'all' || card.dataset.category === category) {
+                            card.style.display = 'block';
+                            gsap.fromTo(card, {
+                                opacity: 0,
+                                scale: 0.8
+                            }, {
+                                opacity: 1,
+                                scale: 1,
+                                duration: 0.5,
+                                ease: "back.out(1.7)"
+                            });
+                        } else {
+                            gsap.to(card, {
+                                opacity: 0,
+                                scale: 0.8,
+                                duration: 0.3,
+                                onComplete: () => {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        }
+
+        function initSearch() {
+            const searchInput = document.getElementById('dish-search');
+            const sortSelect = document.getElementById('sort-select');
+            const dishCards = Array.from(document.querySelectorAll('.dish-card'));
+
+            // Search functionality
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                filterAndSortDishes(searchTerm, sortSelect.value);
+            });
+
+            // Sort functionality
+            sortSelect.addEventListener('change', (e) => {
+                const sortBy = e.target.value;
+                const searchTerm = searchInput.value.toLowerCase();
+                filterAndSortDishes(searchTerm, sortBy);
+            });
+
+            function filterAndSortDishes(searchTerm, sortBy) {
+                let filteredCards = dishCards.filter(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    const description = card.querySelector('p').textContent.toLowerCase();
+                    return title.includes(searchTerm) || description.includes(searchTerm);
+                });
+
+                // Sort cards
+                filteredCards.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'price-low':
+                            return parseInt(a.dataset.price) - parseInt(b.dataset.price);
+                        case 'price-high':
+                            return parseInt(b.dataset.price) - parseInt(a.dataset.price);
+                        case 'rating':
+                            return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                        default: // popular
+                            return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                    }
+                });
+
+                // Animate and reorder cards
+                const menuGrid = document.getElementById('menu-grid');
+                menuGrid.innerHTML = '';
+                
+                filteredCards.forEach((card, index) => {
+                    menuGrid.appendChild(card);
+                    gsap.fromTo(card, {
+                        opacity: 0,
+                        y: 30
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.5,
+                        delay: index * 0.05,
+                        ease: "power2.out"
+                    });
+                });
+            }
+        }
+
+        function initModal() {
+            const modal = document.getElementById('dish-modal');
+            const closeBtn = document.getElementById('close-modal');
+            const dishCards = document.querySelectorAll('.dish-card');
+
+            // Dish data for modal
+            const dishData = {
+                'Butter Chicken': {
+                    ingredients: ['Chicken', 'Tomato Puree', 'Cream', 'Butter', 'Garam Masala', 'Ginger', 'Garlic'],
+                    nutrition: { calories: '420 kcal', protein: '28g', carbs: '15g', fat: '28g' },
+                    fullDescription: 'Our signature Butter Chicken is prepared using tender chicken pieces marinated in yogurt and spices, then cooked in a rich tomato-based gravy finished with cream and butter. This dish represents the perfect balance of flavors - creamy, tangy, and mildly spiced.'
+                },
+                'Hyderabadi Biryani': {
+                    ingredients: ['Basmati Rice', 'Chicken', 'Saffron', 'Yogurt', 'Onions', 'Mint', 'Saffron'],
+                    nutrition: { calories: '580 kcal', protein: '32g', carbs: '65g', fat: '22g' },
+                    fullDescription: 'Authentic Hyderabadi Biryani made with premium basmati rice and tender chicken, layered with aromatic spices and saffron. Cooked using the traditional dum method to preserve all the flavors and aromas.'
+                },
+                'Masala Dosa': {
+                    ingredients: ['Rice Batter', 'Potatoes', 'Mustard Seeds', 'Curry Leaves', 'Coconut Chutney', 'Sambar'],
+                    nutrition: { calories: '320 kcal', protein: '8g', carbs: '58g', fat: '12g' },
+                    fullDescription: 'Crispy golden dosa made from fermented rice and lentil batter, filled with spiced potato mixture. Served with traditional coconut chutney and aromatic sambar for the complete South Indian experience.'
+                }
+            };
+
+            dishCards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') return; // Don't open modal if clicking add to cart
+                    
+                    const title = card.querySelector('h3').textContent;
+                    const image = card.querySelector('img').src;
+                    const price = card.querySelector('.text-gold-primary.font-bold').textContent;
+                    const rating = card.querySelector('.text-gold-primary').textContent;
+                    const reviews = card.querySelector('.text-xs.opacity-60').textContent;
+                    const spiceLevel = card.querySelector('.spice-indicator');
+                    const description = card.querySelector('p').textContent;
+
+                    // Populate modal
+                    document.getElementById('modal-title').textContent = title;
+                    document.getElementById('modal-image').src = image;
+                    document.getElementById('modal-image').alt = title;
+                    document.getElementById('modal-price').textContent = price;
+                    document.getElementById('modal-rating').textContent = rating;
+                    document.getElementById('modal-reviews').textContent = reviews;
+                    document.getElementById('modal-description').textContent = dishData[title]?.fullDescription || description;
+
+                    // Spice level
+                    const modalSpiceLevel = document.getElementById('modal-spice-level');
+                    modalSpiceLevel.innerHTML = spiceLevel.innerHTML;
+
+                    // Ingredients
+                    const ingredients = dishData[title]?.ingredients || ['Premium ingredients', 'Fresh spices', 'Authentic recipe'];
+                    const ingredientsContainer = document.getElementById('modal-ingredients');
+                    ingredientsContainer.innerHTML = '';
+                    ingredients.forEach(ingredient => {
+                        const span = document.createElement('span');
+                        span.className = 'bg-gold-primary/20 text-gold-primary px-3 py-1 rounded-full text-sm';
+                        span.textContent = ingredient;
+                        ingredientsContainer.appendChild(span);
+                    });
+
+                    // Nutrition
+                    const nutrition = dishData[title]?.nutrition || { calories: '350 kcal', protein: '20g', carbs: '30g', fat: '18g' };
+                    const nutritionContainer = document.getElementById('modal-nutrition');
+                    nutritionContainer.innerHTML = '';
+                    Object.entries(nutrition).forEach(([key, value]) => {
+                        const div = document.createElement('div');
+                        div.className = 'bg-royal-maroon/30 rounded-lg p-3 text-center';
+                        div.innerHTML = `
+                            <div class="text-sm opacity-60 capitalize">${key}</div>
+                            <div class="font-semibold text-gold-primary">${value}</div>
+                        `;
+                        nutritionContainer.appendChild(div);
+                    });
+
+                    // Show modal
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    
+                    setTimeout(() => {
+                        const modalContent = modal.querySelector('.modal-content');
+                        modalContent.classList.add('show');
+                    }, 10);
+                });
+            });
+
+            // Close modal
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            function closeModal() {
+                const modalContent = modal.querySelector('.modal-content');
+                modalContent.classList.remove('show');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+        }
+
+        function initCart() {
+            let cart = JSON.parse(localStorage.getItem('tadka-cart')) || [];
+            
+            // Add to cart functionality
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('.add-to-cart-btn') || e.target.closest('.add-to-cart-btn')) {
+                    const btn = e.target.matches('.add-to-cart-btn') ? e.target : e.target.closest('.add-to-cart-btn');
+                    const card = btn.closest('.dish-card');
+                    const title = card.querySelector('h3').textContent;
+                    const price = parseInt(card.dataset.price);
+                    const image = card.querySelector('img').src;
+
+                    // Add to cart array
+                    const existingItem = cart.find(item => item.title === title);
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({ title, price, image, quantity: 1 });
+                    }
+
+                    // Save to localStorage
+                    localStorage.setItem('tadka-cart', JSON.stringify(cart));
+
+                    // Show success animation
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Added!';
+                    btn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+                    
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 1500);
+
+                    // Show notification
+                    showNotification(`${title} added to cart!`, 'success');
+
+                    // Create floating animation
+                    createFloatingIcon(btn);
+                }
+            });
+        }
+
+        function createFloatingIcon(button) {
+            const rect = button.getBoundingClientRect();
+            const floatingIcon = document.createElement('div');
+            floatingIcon.innerHTML = '✨';
+            floatingIcon.style.cssText = `
+                position: fixed;
+                left: ${rect.left + rect.width/2}px;
+                top: ${rect.top + rect.height/2}px;
+                font-size: 24px;
+                pointer-events: none;
+                z-index: 1000;
+            `;
+            
+            document.body.appendChild(floatingIcon);
+            
+            gsap.to(floatingIcon, {
+                y: -100,
+                x: (Math.random() - 0.5) * 100,
+                opacity: 0,
+                duration: 1.5,
+                ease: "power2.out",
+                onComplete: () => floatingIcon.remove()
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

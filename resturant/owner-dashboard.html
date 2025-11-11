@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - TADKA Luxe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #3B0A45 0%, #1B1B1B 50%, #3B0A45 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgba(59, 10, 69, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 215, 0, 0.2);
+            z-index: 40;
+            padding-top: 80px;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+        
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2);
+        }
+        
+        .order-card {
+            transition: all 0.3s ease;
+        }
+        
+        .order-card:hover {
+            transform: translateX(5px);
+            border-color: #FFD700;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+        
+        .status-preparing {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+        
+        .status-ready {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-delivered {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .sidebar-item.active {
+            background: rgba(255, 215, 0, 0.2);
+            border-right: 3px solid #FFD700;
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="w-12 h-12 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">R</span>
+                </div>
+                <div>
+                    <div class="font-semibold">Royal Biryani House</div>
+                    <div class="text-sm opacity-60">Premium Restaurant</div>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <div class="sidebar-item active p-4 rounded-lg" data-section="dashboard">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">📊</span>
+                        <span class="font-semibold">Dashboard</span>
+                    </div>
+                </div>
+                <div class="sidebar-item p-4 rounded-lg" data-section="orders">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">📋</span>
+                        <span class="font-semibold">Orders</span>
+                    </div>
+                </div>
+                <div class="sidebar-item p-4 rounded-lg" data-section="menu">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">🍽️</span>
+                        <span class="font-semibold">Menu Management</span>
+                    </div>
+                </div>
+                <div class="sidebar-item p-4 rounded-lg" data-section="analytics">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">📈</span>
+                        <span class="font-semibold">Analytics</span>
+                    </div>
+                </div>
+                <div class="sidebar-item p-4 rounded-lg" data-section="reviews">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">⭐</span>
+                        <span class="font-semibold">Reviews</span>
+                    </div>
+                </div>
+                <div class="sidebar-item p-4 rounded-lg" data-section="staff">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">👥</span>
+                        <span class="font-semibold">Staff</span>
+                    </div>
+                </div>
+                <div class="sidebar-item p-4 rounded-lg" data-section="settings">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">⚙️</span>
+                        <span class="font-semibold">Settings</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        
+        <div class="p-6 border-t border-gold-primary/20">
+            <div class="sidebar-item p-4 rounded-lg" onclick="logout()">
+                <div class="flex items-center space-x-3">
+                    <span class="text-xl">🚪</span>
+                    <span class="font-semibold">Logout</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="nav-blur border-b border-gold-primary/20">
+            <div class="max-w-7xl mx-auto px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="font-display text-2xl font-bold gradient-text">Restaurant Dashboard</h1>
+                        <p class="text-sm opacity-60">Manage your restaurant operations</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="relative p-2 text-gold-primary hover:text-gold-secondary transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-12h5v12z"></path>
+                            </svg>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                        <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                            <span class="text-royal-maroon font-bold">A</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Key Metrics -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="metric-card glass-card rounded-2xl p-6 reveal-up">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">💰</div>
+                            <div class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">+12%</div>
+                        </div>
+                        <div class="text-2xl font-bold text-gold-primary mb-1">₹2,45,680</div>
+                        <div class="text-sm opacity-60">Today's Revenue</div>
+                    </div>
+                    
+                    <div class="metric-card glass-card rounded-2xl p-6 reveal-up">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">📦</div>
+                            <div class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">+8%</div>
+                        </div>
+                        <div class="text-2xl font-bold text-gold-primary mb-1">127</div>
+                        <div class="text-sm opacity-60">Total Orders</div>
+                    </div>
+                    
+                    <div class="metric-card glass-card rounded-2xl p-6 reveal-up">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">⭐</div>
+                            <div class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">4.8</div>
+                        </div>
+                        <div class="text-2xl font-bold text-gold-primary mb-1">4.8</div>
+                        <div class="text-sm opacity-60">Average Rating</div>
+                    </div>
+                    
+                    <div class="metric-card glass-card rounded-2xl p-6 reveal-up">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">👥</div>
+                            <div class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full">+15%</div>
+                        </div>
+                        <div class="text-2xl font-bold text-gold-primary mb-1">89</div>
+                        <div class="text-sm opacity-60">New Customers</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid lg:grid-cols-2 gap-8 mb-8">
+                    <div class="glass-card rounded-2xl p-6 reveal-up">
+                        <h3 class="font-display text-xl font-bold mb-4">Revenue Trend</h3>
+                        <div id="revenue-chart" style="height: 300px;"></div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 reveal-up">
+                        <h3 class="font-display text-xl font-bold mb-4">Popular Dishes</h3>
+                        <div id="dishes-chart" style="height: 300px;"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="glass-card rounded-2xl p-6 reveal-up">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-display text-xl font-bold">Recent Orders</h3>
+                        <button class="text-gold-primary hover:text-gold-secondary transition-colors text-sm font-semibold">
+                            View All →
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4" id="recent-orders">
+                        <!-- Orders will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-6">
+                    <h2 class="font-display text-2xl font-bold mb-6">Order Management</h2>
+                    
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <button class="filter-btn active bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-2 text-sm font-semibold" data-status="all">
+                            All Orders
+                        </button>
+                        <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-2 text-sm font-semibold" data-status="pending">
+                            Pending
+                        </button>
+                        <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-2 text-sm font-semibold" data-status="preparing">
+                            Preparing
+                        </button>
+                        <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-2 text-sm font-semibold" data-status="ready">
+                            Ready
+                        </button>
+                        <button class="filter-btn bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-2 text-sm font-semibold" data-status="delivered">
+                            Delivered
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gold-primary/20">
+                                    <th class="text-left py-3 px-4">Order ID</th>
+                                    <th class="text-left py-3 px-4">Customer</th>
+                                    <th class="text-left py-3 px-4">Items</th>
+                                    <th class="text-left py-3 px-4">Amount</th>
+                                    <th class="text-left py-3 px-4">Status</th>
+                                    <th class="text-left py-3 px-4">Time</th>
+                                    <th class="text-left py-3 px-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table">
+                                <!-- Orders will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Management Section -->
+            <div id="menu-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display text-2xl font-bold">Menu Management</h2>
+                        <button id="add-dish-btn" class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                            Add New Dish
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-items">
+                        <!-- Menu items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics-section" class="section-content hidden">
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-display text-xl font-bold mb-4">Daily Revenue</h3>
+                        <div id="daily-revenue-chart" style="height: 300px;"></div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-display text-xl font-bold mb-4">Order Status Distribution</h3>
+                        <div id="order-status-chart" style="height: 300px;"></div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-display text-xl font-bold mb-4">Customer Satisfaction</h3>
+                        <div id="satisfaction-chart" style="height: 300px;"></div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-display text-xl font-bold mb-4">Peak Hours</h3>
+                        <div id="peak-hours-chart" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div id="reviews-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-6">
+                    <h2 class="font-display text-2xl font-bold mb-6">Customer Reviews</h2>
+                    
+                    <div class="space-y-4" id="reviews-list">
+                        <!-- Reviews will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Section -->
+            <div id="staff-section" class="section-content hidden">
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display text-2xl font-bold">Staff Management</h2>
+                        <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                            Add Staff
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="staff-list">
+                        <!-- Staff will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings-section" class="section-content hidden">
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-display text-xl font-bold mb-6">Restaurant Information</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Restaurant Name</label>
+                                <input type="text" value="Royal Biryani House" class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory focus:outline-none focus:border-gold-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Address</label>
+                                <textarea class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory focus:outline-none focus:border-gold-primary" rows="3">123 MG Road, Bangalore, Karnataka 560001</textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Phone</label>
+                                    <input type="text" value="+91 9876543210" class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory focus:outline-none focus:border-gold-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Email</label>
+                                    <input type="email" value="info@royalbiryanihouse.com" class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory focus:outline-none focus:border-gold-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-display text-xl font-bold mb-6">Operating Hours</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span>Monday - Friday</span>
+                                <span class="text-gold-primary">11:00 AM - 10:00 PM</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Saturday - Sunday</span>
+                                <span class="text-gold-primary">11:00 AM - 11:00 PM</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h4 class="font-semibold mb-3">Delivery Settings</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span>Delivery Radius</span>
+                                    <span class="text-gold-primary">5 km</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Delivery Fee</span>
+                                    <span class="text-gold-primary">₹49</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Minimum Order</span>
+                                    <span class="text-gold-primary">₹200</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Owner Dashboard JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initSidebar();
+            initDashboard();
+            initCharts();
+            initOrders();
+            initMenu();
+            initAnalytics();
+            initReviews();
+            initStaff();
+            initAnimations();
+        });
+
+        function initSidebar() {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const sections = document.querySelectorAll('.section-content');
+
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (item.dataset.section) {
+                        // Update active sidebar item
+                        sidebarItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+
+                        // Show corresponding section
+                        sections.forEach(section => {
+                            section.classList.add('hidden');
+                        });
+                        document.getElementById(`${item.dataset.section}-section`).classList.remove('hidden');
+                    }
+                });
+            });
+        }
+
+        function initDashboard() {
+            // Recent orders data
+            const recentOrders = [
+                {
+                    id: '#TDL-001',
+                    customer: 'Himanshu Sharma',
+                    items: 'Hyderabadi Biryani, Raita',
+                    amount: '₹485',
+                    status: 'preparing',
+                    time: '15 min ago'
+                },
+                {
+                    id: '#TDL-002',
+                    customer: 'Priya Patel',
+                    items: 'Butter Chicken, Naan',
+                    amount: '₹385',
+                    status: 'pending',
+                    time: '8 min ago'
+                },
+                {
+                    id: '#TDL-003',
+                    customer: 'Raj Singh',
+                    items: 'Paneer Tikka, Dal Makhani',
+                    amount: '₹580',
+                    status: 'ready',
+                    time: '22 min ago'
+                },
+                {
+                    id: '#TDL-004',
+                    customer: 'Anika Verma',
+                    items: 'Masala Dosa, Sambar',
+                    amount: '₹185',
+                    status: 'delivered',
+                    time: '45 min ago'
+                }
+            ];
+
+            const ordersContainer = document.getElementById('recent-orders');
+            ordersContainer.innerHTML = recentOrders.map(order => `
+                <div class="order-card glass-card rounded-xl p-4 border border-transparent">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="font-semibold">${order.id}</span>
+                                <span class="status-badge status-${order.status}">${order.status}</span>
+                            </div>
+                            <div class="text-sm opacity-80 mb-1">${order.customer}</div>
+                            <div class="text-sm">${order.items}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-gold-primary mb-2">${order.amount}</div>
+                            <div class="text-xs opacity-60">${order.time}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initCharts() {
+            // Revenue Chart
+            const revenueChart = echarts.init(document.getElementById('revenue-chart'));
+            const revenueOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' },
+                    splitLine: { lineStyle: { color: 'rgba(255, 215, 0, 0.2)' } }
+                },
+                series: [{
+                    data: [28000, 32000, 25000, 35000, 42000, 48000, 38000],
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: { color: '#FFD700', width: 3 },
+                    itemStyle: { color: '#FFD700' },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(255, 215, 0, 0.3)' },
+                                { offset: 1, color: 'rgba(255, 215, 0, 0.1)' }
+                            ]
+                        }
+                    }
+                }]
+            };
+            revenueChart.setOption(revenueOption);
+
+            // Popular Dishes Chart
+            const dishesChart = echarts.init(document.getElementById('dishes-chart'));
+            const dishesOption = {
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        { value: 35, name: 'Hyderabadi Biryani', itemStyle: { color: '#FFD700' } },
+                        { value: 25, name: 'Butter Chicken', itemStyle: { color: '#F6C90E' } },
+                        { value: 20, name: 'Paneer Tikka', itemStyle: { color: '#D4AF37' } },
+                        { value: 20, name: 'Dal Makhani', itemStyle: { color: '#B8860B' } }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(255, 215, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+            dishesChart.setOption(dishesOption);
+
+            // Resize charts on window resize
+            window.addEventListener('resize', () => {
+                revenueChart.resize();
+                dishesChart.resize();
+            });
+        }
+
+        function initOrders() {
+            const ordersData = [
+                {
+                    id: '#TDL-001',
+                    customer: 'Himanshu Sharma',
+                    items: 'Hyderabadi Biryani, Raita',
+                    amount: '₹485',
+                    status: 'preparing',
+                    time: '15 min ago'
+                },
+                {
+                    id: '#TDL-002',
+                    customer: 'Priya Patel',
+                    items: 'Butter Chicken, Naan',
+                    amount: '₹385',
+                    status: 'pending',
+                    time: '8 min ago'
+                },
+                {
+                    id: '#TDL-003',
+                    customer: 'Raj Singh',
+                    items: 'Paneer Tikka, Dal Makhani',
+                    amount: '₹580',
+                    status: 'ready',
+                    time: '22 min ago'
+                },
+                {
+                    id: '#TDL-004',
+                    customer: 'Anika Verma',
+                    items: 'Masala Dosa, Sambar',
+                    amount: '₹185',
+                    status: 'delivered',
+                    time: '45 min ago'
+                }
+            ];
+
+            const ordersTable = document.getElementById('orders-table');
+            ordersTable.innerHTML = ordersData.map(order => `
+                <tr class="border-b border-gold-primary/10 hover:bg-royal-maroon/20 transition-colors">
+                    <td class="py-3 px-4 font-semibold">${order.id}</td>
+                    <td class="py-3 px-4">${order.customer}</td>
+                    <td class="py-3 px-4">${order.items}</td>
+                    <td class="py-3 px-4 font-bold text-gold-primary">${order.amount}</td>
+                    <td class="py-3 px-4">
+                        <span class="status-badge status-${order.status}">${order.status}</span>
+                    </td>
+                    <td class="py-3 px-4 text-sm opacity-60">${order.time}</td>
+                    <td class="py-3 px-4">
+                        <button class="text-gold-primary hover:text-gold-secondary transition-colors">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const status = btn.dataset.status;
+                    // Filter logic would go here
+                    showNotification(`Filtering by: ${status}`, 'info');
+                });
+            });
+        }
+
+        function initMenu() {
+            const menuItems = [
+                {
+                    name: 'Hyderabadi Biryani',
+                    price: '₹425',
+                    category: 'Biryanis',
+                    status: 'Available',
+                    orders: 156
+                },
+                {
+                    name: 'Butter Chicken',
+                    price: '₹385',
+                    category: 'Main Course',
+                    status: 'Available',
+                    orders: 134
+                },
+                {
+                    name: 'Paneer Tikka',
+                    price: '₹285',
+                    category: 'Appetizers',
+                    status: 'Available',
+                    orders: 98
+                },
+                {
+                    name: 'Dal Makhani',
+                    price: '₹295',
+                    category: 'Main Course',
+                    status: 'Available',
+                    orders: 87
+                },
+                {
+                    name: 'Masala Dosa',
+                    price: '₹185',
+                    category: 'South Indian',
+                    status: 'Available',
+                    orders: 76
+                },
+                {
+                    name: 'Gulab Jamun',
+                    price: '₹145',
+                    category: 'Desserts',
+                    status: 'Available',
+                    orders: 65
+                }
+            ];
+
+            const menuContainer = document.getElementById('menu-items');
+            menuContainer.innerHTML = menuItems.map(item => `
+                <div class="glass-card rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-semibold">${item.name}</h4>
+                        <span class="text-gold-primary font-bold">${item.price}</span>
+                    </div>
+                    <div class="text-sm opacity-60 mb-3">${item.category}</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">${item.status}</span>
+                        <span class="text-xs opacity-60">${item.orders} orders</span>
+                    </div>
+                    <div class="mt-3 flex gap-2">
+                        <button class="text-xs bg-gold-primary/20 text-gold-primary px-2 py-1 rounded">Edit</button>
+                        <button class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add dish button
+            document.getElementById('add-dish-btn').addEventListener('click', () => {
+                showNotification('Add dish feature coming soon!', 'info');
+            });
+        }
+
+        function initAnalytics() {
+            // Daily Revenue Chart
+            const dailyRevenueChart = echarts.init(document.getElementById('daily-revenue-chart'));
+            const dailyRevenueOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['12AM', '4AM', '8AM', '12PM', '4PM', '8PM'],
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' },
+                    splitLine: { lineStyle: { color: 'rgba(255, 215, 0, 0.2)' } }
+                },
+                series: [{
+                    data: [5000, 2000, 8000, 15000, 25000, 18000],
+                    type: 'bar',
+                    itemStyle: { color: '#FFD700' }
+                }]
+            };
+            dailyRevenueChart.setOption(dailyRevenueOption);
+
+            // Order Status Chart
+            const orderStatusChart = echarts.init(document.getElementById('order-status-chart'));
+            const orderStatusOption = {
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        { value: 45, name: 'Pending', itemStyle: { color: '#FFC107' } },
+                        { value: 30, name: 'Preparing', itemStyle: { color: '#FF9800' } },
+                        { value: 15, name: 'Ready', itemStyle: { color: '#4CAF50' } },
+                        { value: 10, name: 'Delivered', itemStyle: { color: '#2196F3' } }
+                    ]
+                }]
+            };
+            orderStatusChart.setOption(orderStatusOption);
+
+            // Customer Satisfaction Chart
+            const satisfactionChart = echarts.init(document.getElementById('satisfaction-chart'));
+            const satisfactionOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' },
+                    splitLine: { lineStyle: { color: 'rgba(255, 215, 0, 0.2)' } }
+                },
+                series: [{
+                    data: [2, 5, 15, 35, 78],
+                    type: 'bar',
+                    itemStyle: { color: '#FFD700' }
+                }]
+            };
+            satisfactionChart.setOption(satisfactionOption);
+
+            // Peak Hours Chart
+            const peakHoursChart = echarts.init(document.getElementById('peak-hours-chart'));
+            const peakHoursOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['11AM', '12PM', '1PM', '2PM', '7PM', '8PM', '9PM'],
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' },
+                    splitLine: { lineStyle: { color: 'rgba(255, 215, 0, 0.2)' } }
+                },
+                series: [{
+                    data: [12, 25, 35, 20, 45, 38, 28],
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: { color: '#FFD700', width: 3 },
+                    itemStyle: { color: '#FFD700' }
+                }]
+            };
+            peakHoursChart.setOption(peakHoursOption);
+
+            // Resize charts
+            window.addEventListener('resize', () => {
+                dailyRevenueChart.resize();
+                orderStatusChart.resize();
+                satisfactionChart.resize();
+                peakHoursChart.resize();
+            });
+        }
+
+        function initReviews() {
+            const reviewsData = [
+                {
+                    customer: 'Himanshu Sharma',
+                    rating: 5,
+                    comment: 'Excellent biryani! The flavors were authentic and the portion size was generous. Will definitely order again.',
+                    dish: 'Hyderabadi Biryani',
+                    date: '2 days ago'
+                },
+                {
+                    customer: 'Priya Patel',
+                    rating: 4,
+                    comment: 'Good food but delivery took a bit longer than expected. The butter chicken was delicious though.',
+                    dish: 'Butter Chicken',
+                    date: '3 days ago'
+                },
+                {
+                    customer: 'Raj Singh',
+                    rating: 5,
+                    comment: 'Amazing experience! The paneer tikka was perfectly cooked and the dal makhani was creamy and flavorful.',
+                    dish: 'Paneer Tikka, Dal Makhani',
+                    date: '5 days ago'
+                }
+            ];
+
+            const reviewsContainer = document.getElementById('reviews-list');
+            reviewsContainer.innerHTML = reviewsData.map(review => `
+                <div class="glass-card rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                                <span class="text-royal-maroon font-bold">${review.customer.charAt(0)}</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold">${review.customer}</div>
+                                <div class="text-sm opacity-60">${review.date}</div>
+                            </div>
+                        </div>
+                        <div class="text-gold-primary">
+                            ${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}
+                        </div>
+                    </div>
+                    <div class="text-sm opacity-80 mb-2">Ordered: ${review.dish}</div>
+                    <p class="text-sm">${review.comment}</p>
+                </div>
+            `).join('');
+        }
+
+        function initStaff() {
+            const staffData = [
+                {
+                    name: 'Ramesh Kumar',
+                    role: 'Head Chef',
+                    status: 'Working',
+                    shift: 'Morning'
+                },
+                {
+                    name: 'Suresh Patel',
+                    role: 'Sous Chef',
+                    status: 'Working',
+                    shift: 'Evening'
+                },
+                {
+                    name: 'Pooja Sharma',
+                    role: 'Server',
+                    status: 'On Break',
+                    shift: 'Morning'
+                },
+                {
+                    name: 'Vikram Singh',
+                    role: 'Delivery Driver',
+                    status: 'Working',
+                    shift: 'Evening'
+                },
+                {
+                    name: 'Anita Verma',
+                    role: 'Cashier',
+                    status: 'Working',
+                    shift: 'Morning'
+                },
+                {
+                    name: 'Deepak Joshi',
+                    role: 'Helper',
+                    status: 'Off Duty',
+                    shift: 'Evening'
+                }
+            ];
+
+            const staffContainer = document.getElementById('staff-list');
+            staffContainer.innerHTML = staffData.map(staff => `
+                <div class="glass-card rounded-xl p-4">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                            <span class="text-royal-maroon font-bold">${staff.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold">${staff.name}</div>
+                            <div class="text-sm opacity-60">${staff.role}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs ${staff.status === 'Working' ? 'bg-green-500/20 text-green-400' : staff.status === 'On Break' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-500/20 text-gray-400'} px-2 py-1 rounded-full">
+                            ${staff.status}
+                        </span>
+                        <span class="text-xs opacity-60">${staff.shift}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 100);
+            });
+        }
+
+        function logout() {
+            showNotification('Logging out...', 'info');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - TADKA Luxe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #3B0A45 0%, #1B1B1B 50%, #3B0A45 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(rgba(59, 10, 69, 0.8), rgba(27, 27, 27, 0.9)), url('resources/hero-restaurant.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .spice-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+        
+        .spice-cardamom { background: #8B4513; }
+        .spice-saffron { background: #FF9933; }
+        .spice-clove { background: #654321; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .floating-animation {
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-30px) rotate(90deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+            75% { transform: translateY(-35px) rotate(270deg); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 0 60px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.8s ease;
+        }
+        
+        .dish-showcase {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        
+        .dish-showcase img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+        
+        .dish-showcase:hover img {
+            transform: scale(1.05) rotateY(10deg);
+            box-shadow: 0 30px 80px rgba(255, 215, 0, 0.5);
+        }
+        
+        .steam-effect {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 60px;
+            opacity: 0;
+            animation: steam-rise 4s ease-in-out infinite;
+        }
+        
+        .steam-effect::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: steam-float 4s ease-in-out infinite;
+        }
+        
+        @keyframes steam-rise {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            50% { opacity: 0.6; transform: translateX(-50%) translateY(-10px); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
+        }
+        
+        @keyframes steam-float {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            background: rgba(59, 10, 69, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #FFF8E7;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #FFD700;
+            background: rgba(59, 10, 69, 0.5);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        
+        .input-group label {
+            position: absolute;
+            left: 20px;
+            top: 16px;
+            color: rgba(255, 248, 231, 0.6);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label,
+        .input-group select:focus + label,
+        .input-group select:not([value=""]) + label {
+            top: -8px;
+            left: 12px;
+            font-size: 12px;
+            color: #FFD700;
+            background: #3B0A45;
+            padding: 0 8px;
+        }
+        
+        .auth-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .auth-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .social-login {
+            transition: all 0.3s ease;
+        }
+        
+        .social-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+        }
+        
+        .decorative-pattern {
+            position: absolute;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .pattern-1 {
+            top: 10%;
+            right: 5%;
+            width: 150px;
+            height: 150px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%23FFD700" stroke-width="2"/><circle cx="50" cy="50" r="25" fill="none" stroke="%23FFD700" stroke-width="1"/><circle cx="50" cy="50" r="10" fill="%23FFD700"/></svg>') no-repeat center;
+            background-size: contain;
+            animation: rotate 20s linear infinite;
+        }
+        
+        .pattern-2 {
+            bottom: 15%;
+            left: 3%;
+            width: 120px;
+            height: 120px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="none" stroke="%23FFD700" stroke-width="2"/></svg>') no-repeat center;
+            background-size: contain;
+            animation: rotate -15s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            color: #3B0A45;
+        }
+        
+        .step.inactive {
+            background: rgba(255, 215, 0, 0.2);
+            color: #FFD700;
+        }
+        
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: rgba(255, 215, 0, 0.3);
+            margin: 0 10px;
+        }
+        
+        .step-line.completed {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                        <span class="text-royal-maroon font-bold text-xl">T</span>
+                    </div>
+                    <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-gold-primary transition-colors duration-300">Home</a>
+                    <a href="menu.html" class="hover:text-gold-primary transition-colors duration-300">Menu</a>
+                    <a href="dashboard.html" class="hover:text-gold-primary transition-colors duration-300">Dashboard</a>
+                    <a href="cart.html" class="hover:text-gold-primary transition-colors duration-300">Cart</a>
+                    <a href="login.html" class="hover:text-gold-primary transition-colors duration-300">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 min-h-screen flex items-center justify-center relative">
+        <!-- Decorative Patterns -->
+        <div class="decorative-pattern pattern-1"></div>
+        <div class="decorative-pattern pattern-2"></div>
+        
+        <!-- Spice Particles -->
+        <div id="spice-particles" class="absolute inset-0 pointer-events-none"></div>
+        
+        <div class="max-w-6xl mx-auto px-6 py-12">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left Side - Hero Content -->
+                <div class="text-center lg:text-left reveal-up">
+                    <div class="dish-showcase floating-animation mb-8">
+                        <img src="resources/dish-biryani.jpg" alt="Premium Indian Dish" class="rounded-full">
+                        <div class="steam-effect"></div>
+                    </div>
+                    
+                    <h1 class="font-display text-5xl md:text-7xl font-bold mb-6" data-splitting>
+                        <span class="gradient-text">Join TADKA Luxe</span>
+                    </h1>
+                    
+                    <p class="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed">
+                        Embark on a culinary journey through India's finest flavors and traditions
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="index.html" class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-8 py-4 rounded-full font-semibold text-lg hover:golden-glow transition-all pulse-glow">
+                            🏠 Back to Home
+                        </a>
+                        <a href="login.html" class="border-2 border-gold-primary text-gold-primary px-8 py-4 rounded-full font-semibold text-lg hover:bg-gold-primary hover:text-royal-maroon transition-all">
+                            Already Member
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Right Side - Signup Form -->
+                <div class="glass-card rounded-3xl p-8 reveal-up">
+                    <div class="text-center mb-8">
+                        <h2 class="font-display text-3xl font-bold gradient-text mb-2">Create Account</h2>
+                        <p class="opacity-80">Join India's premium dining community</p>
+                    </div>
+                    
+                    <!-- Step Indicator -->
+                    <div class="step-indicator">
+                        <div class="step active" id="step-1">1</div>
+                        <div class="step-line" id="line-1"></div>
+                        <div class="step inactive" id="step-2">2</div>
+                        <div class="step-line" id="line-2"></div>
+                        <div class="step inactive" id="step-3">3</div>
+                    </div>
+                    
+                    <form id="signup-form">
+                        <!-- Step 1: Basic Information -->
+                        <div id="form-step-1" class="form-step">
+                            <div class="input-group">
+                                <input type="text" id="firstName" placeholder=" " required>
+                                <label for="firstName">First Name</label>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="text" id="lastName" placeholder=" " required>
+                                <label for="lastName">Last Name</label>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="email" id="email" placeholder=" " required>
+                                <label for="email">Email Address</label>
+                            </div>
+                            
+                            <button type="button" onclick="nextStep(1)" class="auth-btn w-full bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-4 rounded-lg font-bold text-lg hover:golden-glow transition-all pulse-glow">
+                                Continue
+                            </button>
+                        </div>
+                        
+                        <!-- Step 2: Security -->
+                        <div id="form-step-2" class="form-step hidden">
+                            <div class="input-group">
+                                <input type="password" id="password" placeholder=" " required>
+                                <label for="password">Password</label>
+                                <button type="button" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gold-primary hover:text-gold-secondary transition-colors" onclick="togglePassword('password')">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="password" id="confirmPassword" placeholder=" " required>
+                                <label for="confirmPassword">Confirm Password</label>
+                                <button type="button" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gold-primary hover:text-gold-secondary transition-colors" onclick="togglePassword('confirmPassword')">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="flex gap-4">
+                                <button type="button" onclick="prevStep(2)" class="flex-1 border border-gold-primary text-gold-primary py-4 rounded-lg font-bold text-lg hover:bg-gold-primary/10 transition-all">
+                                    Back
+                                </button>
+                                <button type="button" onclick="nextStep(2)" class="flex-1 auth-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-4 rounded-lg font-bold text-lg hover:golden-glow transition-all pulse-glow">
+                                    Continue
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Preferences -->
+                        <div id="form-step-3" class="form-step hidden">
+                            <div class="input-group">
+                                <select id="dietaryPreference" required>
+                                    <option value="">Select Dietary Preference</option>
+                                    <option value="vegetarian">Vegetarian</option>
+                                    <option value="non-vegetarian">Non-Vegetarian</option>
+                                    <option value="vegan">Vegan</option>
+                                    <option value="halal">Halal</option>
+                                </select>
+                                <label for="dietaryPreference">Dietary Preference</label>
+                            </div>
+                            
+                            <div class="input-group">
+                                <select id="spiceLevel" required>
+                                    <option value="">Select Spice Level</option>
+                                    <option value="mild">Mild</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="hot">Hot</option>
+                                    <option value="extra-hot">Extra Hot</option>
+                                </select>
+                                <label for="spiceLevel">Preferred Spice Level</label>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="tel" id="phone" placeholder=" ">
+                                <label for="phone">Phone Number (Optional)</label>
+                            </div>
+                            
+                            <div class="flex items-center mb-6">
+                                <input type="checkbox" id="terms" class="rounded border-gold-primary/30 bg-royal-maroon/30 text-gold-primary focus:ring-gold-primary mr-3">
+                                <label for="terms" class="text-sm">
+                                    I agree to the 
+                                    <a href="#" class="text-gold-primary hover:text-gold-secondary transition-colors">Terms of Service</a> and 
+                                    <a href="#" class="text-gold-primary hover:text-gold-secondary transition-colors">Privacy Policy</a>
+                                </label>
+                            </div>
+                            
+                            <div class="flex gap-4">
+                                <button type="button" onclick="prevStep(3)" class="flex-1 border border-gold-primary text-gold-primary py-4 rounded-lg font-bold text-lg hover:bg-gold-primary/10 transition-all">
+                                    Back
+                                </button>
+                                <button type="submit" class="flex-1 auth-btn bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-4 rounded-lg font-bold text-lg hover:golden-glow transition-all pulse-glow">
+                                    Create Account
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="relative my-8">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gold-primary/20"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-transparent">Or sign up with</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="social-login glass-card rounded-lg p-4 border border-gold-primary/30 hover:border-gold-primary transition-all" onclick="socialSignup('google')">
+                            <div class="flex items-center justify-center space-x-3">
+                                <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">G</div>
+                                <span class="font-semibold">Google</span>
+                            </div>
+                        </button>
+                        
+                        <button class="social-login glass-card rounded-lg p-4 border border-gold-primary/30 hover:border-gold-primary transition-all" onclick="socialSignup('facebook')">
+                            <div class="flex items-center justify-center space-x-3">
+                                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">f</div>
+                                <span class="font-semibold">Facebook</span>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-6">
+                        <p class="text-sm opacity-80">
+                            Already have an account? 
+                            <a href="login.html" class="text-gold-primary hover:text-gold-secondary transition-colors font-semibold">Sign in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">T</span>
+                </div>
+                <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+            </div>
+            <p class="text-sm opacity-60">
+                © 2025 TADKA Luxe. Redefining premium Indian dining experiences.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Signup page JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initSpiceParticles();
+            initTextAnimations();
+            initFormHandlers();
+            initAnimations();
+        });
+
+        let currentStep = 1;
+
+        function initSpiceParticles() {
+            const particleContainer = document.getElementById('spice-particles');
+            const spiceTypes = ['spice-cardamom', 'spice-saffron', 'spice-clove'];
+            const particleCount = 25;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = `spice-particle ${spiceTypes[Math.floor(Math.random() * spiceTypes.length)]}`;
+                particleContainer.appendChild(particle);
+                
+                // Random positioning
+                gsap.set(particle, {
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    scale: Math.random() * 0.8 + 0.4
+                });
+                
+                // Floating animation
+                gsap.to(particle, {
+                    x: "+=150",
+                    y: "+=80",
+                    rotation: 360,
+                    duration: Math.random() * 15 + 10,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut",
+                    delay: Math.random() * 5
+                });
+            }
+        }
+
+        function initTextAnimations() {
+            // Text splitting animation
+            Splitting();
+            
+            const splitText = document.querySelector('[data-splitting]');
+            if (splitText) {
+                const chars = splitText.querySelectorAll('.char');
+                
+                gsap.fromTo(chars, {
+                    opacity: 0,
+                    y: 100,
+                    rotateZ: 180
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    rotateZ: 0,
+                    duration: 1.2,
+                    stagger: 0.08,
+                    ease: "back.out(1.7)",
+                    delay: 0.5
+                });
+            }
+        }
+
+        function initFormHandlers() {
+            const signupForm = document.getElementById('signup-form');
+            
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                handleSignup();
+            });
+        }
+
+        function nextStep(current) {
+            if (!validateStep(current)) return;
+            
+            // Hide current step
+            document.getElementById(`form-step-${current}`).classList.add('hidden');
+            
+            // Update step indicators
+            document.getElementById(`step-${current}`).classList.remove('active');
+            document.getElementById(`step-${current}`).classList.add('inactive');
+            document.getElementById(`line-${current}`).classList.add('completed');
+            
+            // Show next step
+            currentStep = current + 1;
+            document.getElementById(`form-step-${currentStep}`).classList.remove('hidden');
+            document.getElementById(`step-${currentStep}`).classList.remove('inactive');
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            
+            // Animate step transition
+            gsap.fromTo(`#form-step-${currentStep}`, {
+                opacity: 0,
+                x: 50
+            }, {
+                opacity: 1,
+                x: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+
+        function prevStep(current) {
+            // Hide current step
+            document.getElementById(`form-step-${current}`).classList.add('hidden');
+            
+            // Update step indicators
+            document.getElementById(`step-${current}`).classList.remove('active');
+            document.getElementById(`step-${current}`).classList.add('inactive');
+            document.getElementById(`line-${current-1}`).classList.remove('completed');
+            
+            // Show previous step
+            currentStep = current - 1;
+            document.getElementById(`form-step-${currentStep}`).classList.remove('hidden');
+            document.getElementById(`step-${currentStep}`).classList.remove('inactive');
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            
+            // Animate step transition
+            gsap.fromTo(`#form-step-${currentStep}`, {
+                opacity: 0,
+                x: -50
+            }, {
+                opacity: 1,
+                x: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+
+        function validateStep(step) {
+            switch(step) {
+                case 1:
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const email = document.getElementById('email').value;
+                    
+                    if (!firstName || !lastName || !email) {
+                        showNotification('Please fill in all required fields', 'error');
+                        return false;
+                    }
+                    
+                    if (!isValidEmail(email)) {
+                        showNotification('Please enter a valid email address', 'error');
+                        return false;
+                    }
+                    break;
+                    
+                case 2:
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (!password || !confirmPassword) {
+                        showNotification('Please fill in all password fields', 'error');
+                        return false;
+                    }
+                    
+                    if (password.length < 8) {
+                        showNotification('Password must be at least 8 characters long', 'error');
+                        return false;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        showNotification('Passwords do not match', 'error');
+                        return false;
+                    }
+                    break;
+                    
+                case 3:
+                    const dietaryPreference = document.getElementById('dietaryPreference').value;
+                    const spiceLevel = document.getElementById('spiceLevel').value;
+                    const terms = document.getElementById('terms').checked;
+                    
+                    if (!dietaryPreference || !spiceLevel) {
+                        showNotification('Please select your preferences', 'error');
+                        return false;
+                    }
+                    
+                    if (!terms) {
+                        showNotification('Please accept the terms and conditions', 'error');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        function handleSignup() {
+            if (!validateStep(3)) return;
+            
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Creating Account...';
+            submitBtn.disabled = true;
+            
+            // Simulate signup process
+            setTimeout(() => {
+                showNotification('Account created successfully! Welcome to TADKA Luxe!', 'success');
+                createConfetti();
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            }, 2500);
+        }
+
+        function socialSignup(provider) {
+            showNotification(`Connecting with ${provider}...`, 'info');
+            
+            // Simulate social signup
+            setTimeout(() => {
+                showNotification(`${provider} signup successful! Welcome to TADKA Luxe!`, 'success');
+                createConfetti();
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            }, 2000);
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function initAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 200);
+            });
+        }
+
+        function createConfetti() {
+            const colors = ['#FFD700', '#F6C90E', '#FFF8E7', '#3B0A45', '#B8860B'];
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                    width: 8px;
+                    height: 8px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation: confetti-fall ${Math.random() * 3 + 2}s linear;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

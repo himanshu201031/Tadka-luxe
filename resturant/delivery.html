@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Partner - TADKA Luxe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #3B0A45 0%, #1B1B1B 50%, #3B0A45 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .delivery-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .delivery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(255, 215, 0, 0.2);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-available {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-busy {
+            background: rgba(255, 152, 0, 0.2);
+            color: #FF9800;
+        }
+        
+        .status-offline {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9E9E9E;
+        }
+        
+        .order-timeline {
+            position: relative;
+        }
+        
+        .order-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 215, 0, 0.3);
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #FFD700;
+            border: 3px solid #3B0A45;
+        }
+        
+        .timeline-item.completed::before {
+            background: #4CAF50;
+        }
+        
+        .timeline-item.active::before {
+            background: #FFD700;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .earnings-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(246, 201, 14, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        #map {
+            height: 300px;
+            border-radius: 12px;
+        }
+        
+        .floating-action-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            color: #3B0A45;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+        
+        .floating-action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                        <span class="text-royal-maroon font-bold text-xl">T</span>
+                    </div>
+                    <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <div class="text-right">
+                        <div class="font-semibold">Rahul Kumar</div>
+                        <div class="text-sm opacity-60">Delivery Partner</div>
+                    </div>
+                    <div class="status-badge status-available">
+                        Online
+                    </div>
+                    <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-full font-semibold hover:golden-glow transition-all duration-300">
+                        Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-12 reveal-up">
+                <h1 class="font-display text-5xl md:text-6xl font-bold gradient-text mb-6">
+                    Delivery Dashboard
+                </h1>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">
+                    Manage your deliveries and track your earnings
+                </p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="earnings-card glass-card rounded-2xl p-6 reveal-up">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">💰</div>
+                        <div class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">+15%</div>
+                    </div>
+                    <div class="text-2xl font-bold text-gold-primary mb-1">₹2,850</div>
+                    <div class="text-sm opacity-60">Today's Earnings</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 reveal-up">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">📦</div>
+                        <div class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">12</div>
+                    </div>
+                    <div class="text-2xl font-bold text-gold-primary mb-1">47</div>
+                    <div class="text-sm opacity-60">Deliveries Today</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 reveal-up">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">⭐</div>
+                        <div class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">4.9</div>
+                    </div>
+                    <div class="text-2xl font-bold text-gold-primary mb-1">4.9</div>
+                    <div class="text-sm opacity-60">Average Rating</div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 reveal-up">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-3xl">🕐</div>
+                        <div class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded-full">25min</div>
+                    </div>
+                    <div class="text-2xl font-bold text-gold-primary mb-1">25min</div>
+                    <div class="text-sm opacity-60">Avg Delivery Time</div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard -->
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Available Orders -->
+                <div class="lg:col-span-2">
+                    <div class="glass-card rounded-2xl p-6 mb-8 reveal-up">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="font-display text-2xl font-bold">Available Orders</h2>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                                <span class="text-sm">Live Updates</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4" id="available-orders">
+                            <!-- Orders will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Current Delivery -->
+                    <div class="glass-card rounded-2xl p-6 reveal-up" id="current-delivery-section">
+                        <h2 class="font-display text-2xl font-bold mb-6">Current Delivery</h2>
+                        
+                        <div id="no-current-delivery" class="text-center py-12">
+                            <div class="text-6xl mb-4">🚚</div>
+                            <h3 class="font-display text-xl font-bold mb-2">No Active Delivery</h3>
+                            <p class="opacity-80">Accept an order to start delivering</p>
+                        </div>
+                        
+                        <div id="active-delivery" class="hidden">
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <h3 class="font-semibold mb-3">Order Details</h3>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Order ID:</span>
+                                            <span id="current-order-id">#TDL-001</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Customer:</span>
+                                            <span id="current-customer">Himanshu Sharma</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Restaurant:</span>
+                                            <span>Royal Biryani House</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Distance:</span>
+                                            <span class="text-gold-primary">3.2 km</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Earnings:</span>
+                                            <span class="text-gold-primary font-bold">₹85</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="font-semibold mb-3">Delivery Progress</h3>
+                                    <div class="order-timeline">
+                                        <div class="timeline-item completed">
+                                            <div class="font-semibold">Order Accepted</div>
+                                            <div class="text-sm opacity-60">2 min ago</div>
+                                        </div>
+                                        <div class="timeline-item active">
+                                            <div class="font-semibold">Picking up from restaurant</div>
+                                            <div class="text-sm opacity-60">In progress</div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="font-semibold">En route to customer</div>
+                                            <div class="text-sm opacity-60">Pending</div>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <div class="font-semibold">Delivered</div>
+                                            <div class="text-sm opacity-60">Pending</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-gold-primary/20 pt-6">
+                                <div id="map" class="mb-4"></div>
+                                <div class="flex gap-4">
+                                    <button id="picked-up" class="flex-1 bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-3 rounded-lg font-semibold hover:golden-glow transition-all">
+                                        Mark as Picked Up
+                                    </button>
+                                    <button id="call-customer" class="px-6 py-3 border border-gold-primary rounded-lg hover:bg-gold-primary/10 transition-all">
+                                        Call Customer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Earnings Summary -->
+                    <div class="glass-card rounded-2xl p-6 reveal-up">
+                        <h3 class="font-display text-xl font-bold mb-4">Weekly Earnings</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Monday</span>
+                                <span class="font-semibold">₹1,250</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Tuesday</span>
+                                <span class="font-semibold">₹1,480</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Wednesday</span>
+                                <span class="font-semibold">₹1,650</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Thursday</span>
+                                <span class="font-semibold">₹1,320</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Friday</span>
+                                <span class="font-semibold">₹2,850</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Saturday</span>
+                                <span class="font-semibold">₹2,100</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm opacity-60">Sunday</span>
+                                <span class="font-semibold">₹1,800</span>
+                            </div>
+                            <div class="border-t border-gold-primary/20 pt-3 mt-3">
+                                <div class="flex justify-between items-center font-bold">
+                                    <span>Total</span>
+                                    <span class="text-gold-primary">₹13,450</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="glass-card rounded-2xl p-6 reveal-up">
+                        <h3 class="font-display text-xl font-bold mb-4">Performance</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm">On-Time Delivery</span>
+                                    <span class="text-sm font-semibold">94%</span>
+                                </div>
+                                <div class="w-full bg-royal-maroon/30 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-gold-primary to-gold-secondary h-2 rounded-full" style="width: 94%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm">Customer Satisfaction</span>
+                                    <span class="text-sm font-semibold">4.9/5</span>
+                                </div>
+                                <div class="w-full bg-royal-maroon/30 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-gold-primary to-gold-secondary h-2 rounded-full" style="width: 98%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm">Order Acceptance Rate</span>
+                                    <span class="text-sm font-semibold">87%</span>
+                                </div>
+                                <div class="w-full bg-royal-maroon/30 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-gold-primary to-gold-secondary h-2 rounded-full" style="width: 87%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="glass-card rounded-2xl p-6 reveal-up">
+                        <h3 class="font-display text-xl font-bold mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button class="w-full bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-3 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Go Online
+                            </button>
+                            <button class="w-full border border-gold-primary text-gold-primary py-3 rounded-lg font-semibold hover:bg-gold-primary/10 transition-all">
+                                Take a Break
+                            </button>
+                            <button class="w-full border border-gray-500 text-gray-400 py-3 rounded-lg font-semibold hover:bg-gray-500/10 transition-all">
+                                Go Offline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Floating Action Button -->
+    <button class="floating-action-btn" id="emergency-btn" title="Emergency Support">
+        🚨
+    </button>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">T</span>
+                </div>
+                <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+            </div>
+            <p class="text-sm opacity-60">
+                © 2025 TADKA Luxe. Redefining premium Indian dining experiences.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Delivery Partner JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initDeliveryDashboard();
+            initAvailableOrders();
+            initCurrentDelivery();
+            initMap();
+            initQuickActions();
+            initAnimations();
+        });
+
+        let currentDelivery = null;
+        let deliveryMap = null;
+
+        function initDeliveryDashboard() {
+            // Simulate real-time updates
+            setInterval(() => {
+                updateMetrics();
+            }, 30000); // Update every 30 seconds
+        }
+
+        function updateMetrics() {
+            // Simulate metric updates
+            const earningsElement = document.querySelector('.earnings-card .text-2xl');
+            const currentEarnings = parseInt(earningsElement.textContent.replace('₹', '').replace(',', ''));
+            const newEarnings = currentEarnings + Math.floor(Math.random() * 100) + 50;
+            
+            gsap.to(earningsElement, {
+                innerHTML: `₹${newEarnings.toLocaleString()}`,
+                duration: 1,
+                ease: "power2.out"
+            });
+        }
+
+        function initAvailableOrders() {
+            const availableOrders = [
+                {
+                    id: '#TDL-005',
+                    restaurant: 'Royal Biryani House',
+                    customer: 'Priya Sharma',
+                    address: '456 Indiranagar, Bangalore',
+                    items: 'Butter Chicken, Naan, Rice',
+                    amount: '₹485',
+                    distance: '2.8 km',
+                    estimatedTime: '25 min',
+                    earnings: '₹65'
+                },
+                {
+                    id: '#TDL-006',
+                    restaurant: 'South Spice',
+                    customer: 'Raj Patel',
+                    address: '789 Koramangala, Bangalore',
+                    items: 'Masala Dosa, Idli, Vada',
+                    amount: '₹320',
+                    distance: '3.5 km',
+                    estimatedTime: '30 min',
+                    earnings: '₹55'
+                },
+                {
+                    id: '#TDL-007',
+                    restaurant: 'Paneer Paradise',
+                    customer: 'Anika Verma',
+                    address: '321 Whitefield, Bangalore',
+                    items: 'Paneer Tikka, Dal Makhani, Roti',
+                    amount: '₹580',
+                    distance: '4.2 km',
+                    estimatedTime: '35 min',
+                    earnings: '₹75'
+                }
+            ];
+
+            const ordersContainer = document.getElementById('available-orders');
+            ordersContainer.innerHTML = availableOrders.map(order => `
+                <div class="delivery-card glass-card rounded-xl p-4" onclick="acceptOrder('${order.id}')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold">${order.id}</span>
+                            <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full">New</span>
+                        </div>
+                        <span class="text-gold-primary font-bold">${order.earnings}</span>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-3">
+                        <div>
+                            <div class="text-sm opacity-60 mb-1">Restaurant</div>
+                            <div class="font-semibold">${order.restaurant}</div>
+                        </div>
+                        <div>
+                            <div class="text-sm opacity-60 mb-1">Customer</div>
+                            <div class="font-semibold">${order.customer}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm opacity-80 mb-3">${order.items}</div>
+                    
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-gold-primary">${order.distance}</span>
+                            <span>${order.estimatedTime}</span>
+                        </div>
+                        <span class="font-bold">${order.amount}</span>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-t border-gold-primary/20">
+                        <button class="w-full bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                            Accept Order
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function acceptOrder(orderId) {
+            // Simulate order acceptance
+            showNotification(`Order ${orderId} accepted!`, 'success');
+            
+            // Create current delivery
+            currentDelivery = {
+                id: orderId,
+                status: 'accepted',
+                startTime: new Date()
+            };
+            
+            // Update UI
+            document.getElementById('no-current-delivery').classList.add('hidden');
+            document.getElementById('active-delivery').classList.remove('hidden');
+            
+            // Update order details
+            document.getElementById('current-order-id').textContent = orderId;
+            
+            // Remove from available orders
+            const orderCard = event.currentTarget;
+            gsap.to(orderCard, {
+                opacity: 0,
+                scale: 0.8,
+                duration: 0.5,
+                onComplete: () => {
+                    orderCard.remove();
+                }
+            });
+            
+            // Initialize map
+            setTimeout(() => {
+                if (deliveryMap) {
+                    deliveryMap.invalidateSize();
+                }
+            }, 100);
+        }
+
+        function initCurrentDelivery() {
+            // Picked up button
+            document.getElementById('picked-up')?.addEventListener('click', () => {
+                updateDeliveryStatus('picked-up');
+            });
+            
+            // Call customer button
+            document.getElementById('call-customer')?.addEventListener('click', () => {
+                showNotification('Calling customer...', 'info');
+            });
+        }
+
+        function updateDeliveryStatus(status) {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            
+            switch(status) {
+                case 'picked-up':
+                    timelineItems[1].classList.remove('active');
+                    timelineItems[1].classList.add('completed');
+                    timelineItems[2].classList.add('active');
+                    
+                    document.getElementById('picked-up').textContent = 'Mark as Delivered';
+                    document.getElementById('picked-up').onclick = () => completeDelivery();
+                    
+                    showNotification('Order picked up! Proceed to customer location.', 'success');
+                    break;
+                    
+                case 'delivered':
+                    timelineItems[2].classList.remove('active');
+                    timelineItems[2].classList.add('completed');
+                    timelineItems[3].classList.add('completed');
+                    
+                    showNotification('Delivery completed! Great job!', 'success');
+                    completeDelivery();
+                    break;
+            }
+        }
+
+        function completeDelivery() {
+            // Simulate delivery completion
+            showNotification('Delivery completed! Payment processed.', 'success');
+            
+            // Reset current delivery
+            currentDelivery = null;
+            
+            // Update UI
+            setTimeout(() => {
+                document.getElementById('active-delivery').classList.add('hidden');
+                document.getElementById('no-current-delivery').classList.remove('hidden');
+                
+                // Reset timeline
+                const timelineItems = document.querySelectorAll('.timeline-item');
+                timelineItems.forEach((item, index) => {
+                    item.classList.remove('active', 'completed');
+                    if (index === 1) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Reset button
+                document.getElementById('picked-up').textContent = 'Mark as Picked Up';
+                document.getElementById('picked-up').onclick = () => updateDeliveryStatus('picked-up');
+            }, 2000);
+            
+            // Create confetti effect
+            createConfetti();
+        }
+
+        function initMap() {
+            // Initialize Leaflet map
+            deliveryMap = L.map('map').setView([12.9716, 77.5946], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(deliveryMap);
+            
+            // Add markers for restaurant and customer
+            const restaurantMarker = L.marker([12.9716, 77.5946]).addTo(deliveryMap)
+                .bindPopup('Royal Biryani House');
+            
+            const customerMarker = L.marker([12.9784, 77.5996]).addTo(deliveryMap)
+                .bindPopup('Customer Location');
+            
+            // Add route line
+            const routeLine = L.polyline([
+                [12.9716, 77.5946],
+                [12.9784, 77.5996]
+            ], {color: '#FFD700', weight: 4}).addTo(deliveryMap);
+            
+            // Fit map to show both markers
+            const group = new L.featureGroup([restaurantMarker, customerMarker, routeLine]);
+            deliveryMap.fitBounds(group.getBounds().pad(0.1));
+        }
+
+        function initQuickActions() {
+            // Go Online button
+            document.querySelector('button:contains("Go Online")')?.addEventListener('click', function() {
+                this.textContent = 'Online';
+                this.classList.add('bg-green-500');
+                this.classList.remove('bg-gradient-to-r');
+                showNotification('You are now online and ready to accept orders!', 'success');
+            });
+            
+            // Take a Break button
+            document.querySelector('button:contains("Take a Break")')?.addEventListener('click', function() {
+                showNotification('Break mode activated. You won\'t receive new orders.', 'info');
+            });
+            
+            // Go Offline button
+            document.querySelector('button:contains("Go Offline")')?.addEventListener('click', function() {
+                showNotification('You are now offline. See you soon!', 'info');
+            });
+            
+            // Emergency button
+            document.getElementById('emergency-btn').addEventListener('click', () => {
+                showNotification('Emergency support contacted. Help is on the way!', 'warning');
+            });
+        }
+
+        function initAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 100);
+            });
+        }
+
+        function createConfetti() {
+            const colors = ['#FFD700', '#F6C90E', '#FFF8E7', '#3B0A45', '#B8860B'];
+            const confettiCount = 30;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                    width: 8px;
+                    height: 8px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation: confetti-fall ${Math.random() * 2 + 2}s linear;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

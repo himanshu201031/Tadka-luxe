@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TADKA Luxe - Premium Indian Dining Experience</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B',
+                        'deep-maroon': '#2E0E02',
+                        'royal-gold': '#F8C537'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #2E0E02 0%, #3B0A45 25%, #1B1B1B 50%, #3B0A45 75%, #2E0E02 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, rgba(46, 14, 2, 0.95) 0%, rgba(59, 10, 69, 0.9) 25%, rgba(27, 27, 27, 0.85) 50%, rgba(59, 10, 69, 0.9) 75%, rgba(46, 14, 2, 0.95) 100%);
+            position: relative;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(248, 197, 55, 0.1) 0%, 
+                transparent 25%, 
+                transparent 75%, 
+                rgba(255, 215, 0, 0.1) 100%);
+            animation: shimmer 8s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .spice-particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        .spice-cardamom { 
+            width: 8px; 
+            height: 8px; 
+            background: #8B4513; 
+            box-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+        }
+        .spice-saffron { 
+            width: 6px; 
+            height: 6px; 
+            background: #FF9933; 
+            box-shadow: 0 0 8px rgba(255, 153, 51, 0.6);
+        }
+        .spice-clove { 
+            width: 5px; 
+            height: 5px; 
+            background: #654321; 
+            box-shadow: 0 0 6px rgba(101, 67, 33, 0.4);
+        }
+        
+        .dish-showcase {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+        
+        .dish-showcase img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 25px 80px rgba(255, 215, 0, 0.4);
+            transition: all 0.8s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .dish-showcase:hover img {
+            transform: scale(1.1) rotateY(15deg) rotateX(10deg);
+            box-shadow: 0 40px 120px rgba(255, 215, 0, 0.6);
+        }
+        
+        .steam-effect {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 80px;
+            opacity: 0;
+            animation: steam-rise 6s ease-in-out infinite;
+        }
+        
+        .steam-effect::before,
+        .steam-effect::after {
+            content: '';
+            position: absolute;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: steam-float 6s ease-in-out infinite;
+        }
+        
+        .steam-effect::before {
+            width: 60px;
+            height: 40px;
+            left: 10px;
+            animation-delay: 0s;
+        }
+        
+        .steam-effect::after {
+            width: 50px;
+            height: 35px;
+            right: 10px;
+            animation-delay: 2s;
+        }
+        
+        @keyframes steam-rise {
+            0% { opacity: 0; transform: translateX(-50%) translateY(30px); }
+            20% { opacity: 0.7; }
+            80% { opacity: 0.3; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-40px); }
+        }
+        
+        @keyframes steam-float {
+            0%, 100% { transform: scale(1) translateX(0); }
+            33% { transform: scale(1.3) translateX(-10px); }
+            66% { transform: scale(1.1) translateX(10px); }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .floating-animation {
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-25px) rotate(2deg); }
+            50% { transform: translateY(-15px) rotate(-1deg); }
+            75% { transform: translateY(-30px) rotate(1deg); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
+                transform: scale(1.02);
+            }
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-blur.scrolled {
+            background: rgba(59, 10, 69, 0.95);
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.8s ease;
+        }
+        
+        .decorative-pattern {
+            position: absolute;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: pattern-float 12s ease-in-out infinite;
+        }
+        
+        .pattern-1 {
+            top: 15%;
+            right: 8%;
+            width: 200px;
+            height: 200px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="%23FFD700" stroke-width="2"/><circle cx="50" cy="50" r="25" fill="none" stroke="%23FFD700" stroke-width="1"/><circle cx="50" cy="50" r="10" fill="%23FFD700"/><circle cx="50" cy="50" r="35" fill="none" stroke="%23FFD700" stroke-width="0.5" stroke-dasharray="5,5"/></svg>') no-repeat center;
+            background-size: contain;
+            animation-delay: 0s;
+        }
+        
+        .pattern-2 {
+            bottom: 20%;
+            left: 5%;
+            width: 150px;
+            height: 150px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="none" stroke="%23FFD700" stroke-width="2"/><path d="M50 20 L80 35 L80 65 L50 80 L20 65 L20 35 Z" fill="none" stroke="%23FFD700" stroke-width="1"/></svg>') no-repeat center;
+            background-size: contain;
+            animation-delay: -4s;
+        }
+        
+        .pattern-3 {
+            top: 60%;
+            right: 15%;
+            width: 100px;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 20 L80 50 L50 80 L20 50 Z" fill="none" stroke="%23FFD700" stroke-width="2"/><circle cx="50" cy="50" r="15" fill="%23FFD700" opacity="0.3"/></svg>') no-repeat center;
+            background-size: contain;
+            animation-delay: -8s;
+        }
+        
+        @keyframes pattern-float {
+            0%, 100% { transform: rotate(0deg) translateY(0px); }
+            33% { transform: rotate(120deg) translateY(-20px); }
+            66% { transform: rotate(240deg) translateY(10px); }
+        }
+        
+        .cta-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: 1;
+        }
+        
+        .cta-button:active::before {
+            width: 400px;
+            height: 400px;
+        }
+        
+        .cta-button span {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .ripple-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple-effect::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.4);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .ripple-effect:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        .spice-icon {
+            display: inline-block;
+            font-size: 2rem;
+            animation: spice-dance 3s ease-in-out infinite;
+        }
+        
+        @keyframes spice-dance {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+        }
+        
+        .spice-icon:nth-child(2) { animation-delay: -0.5s; }
+        .spice-icon:nth-child(3) { animation-delay: -1s; }
+        .spice-icon:nth-child(4) { animation-delay: -1.5s; }
+        
+        .cursor-trail {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1B1B1B;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFD700;
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Custom Cursor Trail -->
+    <div class="cursor-trail" id="cursor-trail"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-12 h-12 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center floating-animation">
+                        <span class="text-royal-maroon font-bold text-xl">T</span>
+                    </div>
+                    <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="hover:text-gold-primary transition-colors duration-300">Home</a>
+                    <a href="#menu" class="hover:text-gold-primary transition-colors duration-300">Menu</a>
+                    <a href="#about" class="hover:text-gold-primary transition-colors duration-300">About</a>
+                    <a href="#contact" class="hover:text-gold-primary transition-colors duration-300">Contact</a>
+                    <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-full font-semibold hover:golden-glow transition-all duration-300 pulse-glow">
+                        Reserve Table
+                    </button>
+                </div>
+                
+                <div class="md:hidden">
+                    <button class="text-ivory hover:text-gold-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg min-h-screen flex items-center justify-center relative overflow-hidden">
+        <!-- Decorative Patterns -->
+        <div class="decorative-pattern pattern-1"></div>
+        <div class="decorative-pattern pattern-2"></div>
+        <div class="decorative-pattern pattern-3"></div>
+        
+        <!-- Spice Particles -->
+        <div id="spice-particles" class="absolute inset-0 pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 py-20 text-center relative z-10">
+            <div class="reveal-up">
+                <!-- Enhanced Logo Showcase -->
+                <div class="flex items-center justify-center space-x-4 mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center floating-animation">
+                        <span class="text-royal-maroon font-bold text-2xl">T</span>
+                    </div>
+                    <h1 class="font-display text-6xl md:text-8xl font-bold mb-6" data-splitting>
+                        <span class="gradient-text">TADKA Luxe</span>
+                    </h1>
+                </div>
+                
+                <!-- 3D Dish Showcase -->
+                <div class="dish-showcase floating-animation mb-8 mx-auto">
+                    <img src="resources/dish-butter-chicken.jpg" alt="Signature Premium Dish" class="rounded-full">
+                    <div class="steam-effect"></div>
+                </div>
+                
+                <div class="text-xl md:text-2xl mb-8 font-light">
+                    <span id="typed-text"></span>
+                </div>
+                
+                <h2 class="font-display text-4xl md:text-6xl font-bold mb-6 gradient-text reveal-up">
+                    Taste the Heritage of India
+                </h2>
+                <h3 class="font-display text-2xl md:text-3xl font-bold mb-8 gradient-text reveal-up">
+                    One Bite at a Time
+                </h3>
+                
+                <p class="text-lg md:text-xl max-w-3xl mx-auto mb-12 leading-relaxed opacity-90">
+                    Experience authentic Indian flavors reimagined for the modern palate, served with royal elegance. 
+                    Our AI-powered platform curates personalized culinary journeys through the rich tapestry of Indian cuisine.
+                </p>
+                
+                <!-- Spice Icons -->
+                <div class="flex justify-center items-center space-x-6 mb-8 reveal-up">
+                    <div class="spice-icon">🌶️</div>
+                    <div class="spice-icon">🍛</div>
+                    <div class="spice-icon">🥘</div>
+                    <div class="spice-icon">🍽️</div>
+                </div>
+            </div>
+            
+            <div class="reveal-up flex flex-col sm:flex-row gap-6 justify-center items-center">
+                <button id="reserve-btn" class="cta-button ripple-effect bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-10 py-5 rounded-full font-bold text-xl hover:golden-glow transition-all duration-300 pulse-glow">
+                    <span>🍴 Reserve Table</span>
+                </button>
+                <button id="order-btn" class="cta-button border-2 border-gold-primary text-gold-primary px-10 py-5 rounded-full font-bold text-xl hover:bg-gold-primary hover:text-royal-maroon transition-all duration-300">
+                    <span>🛵 Order Online</span>
+                </button>
+            </div>
+            
+            <div class="mt-8 reveal-up">
+                <p class="text-sm opacity-80">Scroll to Discover Our Story ↓</p>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <div class="w-6 h-10 border-2 border-gold-primary rounded-full flex justify-center">
+                <div class="w-1 h-3 bg-gold-primary rounded-full mt-2 animate-pulse"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 reveal-up">
+                <h2 class="font-display text-5xl font-bold gradient-text mb-6">Our Story</h2>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">
+                    Where centuries-old recipes meet cutting-edge technology
+                </p>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="reveal-up">
+                    <img src="resources/hero-restaurant.jpg" alt="Luxury Restaurant Interior" class="w-full h-96 object-cover rounded-3xl shadow-2xl">
+                </div>
+                
+                <div class="reveal-up">
+                    <h3 class="font-display text-3xl font-bold mb-6 gradient-text">A Culinary Revolution</h3>
+                    <p class="text-lg mb-6 opacity-90 leading-relaxed">
+                        TADKA Luxe represents the perfect fusion of India's rich culinary heritage and modern technological innovation. 
+                        Our platform brings together the finest restaurants, each with their own story and traditions, 
+                        presented through an immersive digital experience.
+                    </p>
+                    <p class="text-lg mb-8 opacity-90 leading-relaxed">
+                        From the royal kitchens of Rajasthan to the coastal flavors of Kerala, we curate authentic experiences 
+                        that honor tradition while embracing the convenience and personalization that modern diners expect.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="glass-card rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold text-gold-primary mb-2">50+</div>
+                            <div class="text-sm opacity-80">Premium Restaurants</div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6 text-center">
+                            <div class="text-3xl font-bold text-gold-primary mb-2">500+</div>
+                            <div class="text-sm opacity-80">Authentic Dishes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Preview Section -->
+    <section id="menu" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 reveal-up">
+                <h2 class="font-display text-5xl font-bold gradient-text mb-6">Featured Dishes</h2>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">
+                    Discover our most celebrated culinary creations
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card rounded-3xl overflow-hidden dish-card reveal-up">
+                    <img src="resources/dish-butter-chicken.jpg" alt="Butter Chicken" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-display text-2xl font-bold mb-2">Butter Chicken</h3>
+                        <p class="text-sm opacity-80 mb-4">Creamy tomato-based curry with tender chicken</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹385</span>
+                            <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-3xl overflow-hidden dish-card reveal-up">
+                    <img src="resources/dish-biryani.jpg" alt="Hyderabadi Biryani" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-display text-2xl font-bold mb-2">Hyderabadi Biryani</h3>
+                        <p class="text-sm opacity-80 mb-4">Aromatic basmati rice with saffron and spices</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹425</span>
+                            <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-3xl overflow-hidden dish-card reveal-up">
+                    <img src="resources/dish-masala-dosa.jpg" alt="Masala Dosa" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-display text-2xl font-bold mb-2">Masala Dosa</h3>
+                        <p class="text-sm opacity-80 mb-4">Crispy rice crepe with spiced potato filling</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gold-primary font-bold text-lg">₹185</span>
+                            <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12 reveal-up">
+                <a href="menu.html" class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-8 py-4 rounded-full font-semibold text-lg hover:golden-glow transition-all pulse-glow">
+                    View Full Menu
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">T</span>
+                </div>
+                <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+            </div>
+            <p class="text-sm opacity-60">
+                © 2025 TADKA Luxe. Redefining premium Indian dining experiences.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Hero Section JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initSpiceParticles();
+            initTypewriter();
+            initScrollAnimations();
+            initCursorTrail();
+            initNavbarScroll();
+            initCTAButtons();
+            initAnimations();
+        });
+
+        // Enhanced Spice Particle System
+        function initSpiceParticles() {
+            const particleContainer = document.getElementById('spice-particles');
+            if (!particleContainer) return;
+            
+            const spiceTypes = ['spice-cardamom', 'spice-saffron', 'spice-clove'];
+            const particleCount = 40;
+            const particles = [];
+            
+            // Create particles
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                const spiceType = spiceTypes[Math.floor(Math.random() * spiceTypes.length)];
+                particle.className = `spice-particle ${spiceType}`;
+                particleContainer.appendChild(particle);
+                
+                // Random initial position
+                gsap.set(particle, {
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    scale: Math.random() * 0.6 + 0.4,
+                    opacity: Math.random() * 0.6 + 0.4
+                });
+                
+                particles.push(particle);
+            }
+            
+            // Animate particles with sophisticated floating motion
+            particles.forEach((particle, index) => {
+                const duration = Math.random() * 25 + 20;
+                const delay = Math.random() * 8;
+                
+                // Main floating animation
+                gsap.to(particle, {
+                    x: "+=200",
+                    y: "+=100",
+                    rotation: 360,
+                    repeat: -1,
+                    yoyo: true,
+                    duration: duration,
+                    delay: delay,
+                    ease: "sine.inOut"
+                });
+                
+                // Parallax layer effect
+                gsap.to(particle, {
+                    y: "+=50",
+                    repeat: -1,
+                    yoyo: true,
+                    duration: duration * 0.5,
+                    delay: delay,
+                    ease: "power1.inOut"
+                });
+                
+                // Mouse interaction with enhanced effects
+                document.addEventListener('mousemove', (e) => {
+                    const rect = particle.getBoundingClientRect();
+                    const distance = Math.sqrt(
+                        Math.pow(e.clientX - rect.left, 2) + Math.pow(e.clientY - rect.top, 2)
+                    );
+                    
+                    if (distance < 150) {
+                        const intensity = 1 - (distance / 150);
+                        gsap.to(particle, {
+                            scale: 1.2 + intensity * 0.8,
+                            opacity: 0.8 + intensity * 0.2,
+                            duration: 0.4,
+                            ease: "power2.out"
+                        });
+                    } else {
+                        gsap.to(particle, {
+                            scale: Math.random() * 0.6 + 0.4,
+                            opacity: Math.random() * 0.6 + 0.4,
+                            duration: 0.8,
+                            ease: "power2.inOut"
+                        });
+                    }
+                });
+            });
+        }
+
+        // Enhanced Typewriter Effect
+        function initTypewriter() {
+            const typedElement = document.getElementById('typed-text');
+            if (!typedElement) return;
+            
+            const messages = [
+                "Where Tradition Meets Innovation",
+                "AI-Powered Culinary Excellence",
+                "Royal Flavors, Modern Luxury",
+                "Your Gateway to Authentic India",
+                "Premium Dining, Perfected"
+            ];
+            
+            new Typed('#typed-text', {
+                strings: messages,
+                typeSpeed: 60,
+                backSpeed: 40,
+                backDelay: 2500,
+                loop: true,
+                showCursor: true,
+                cursorChar: '✨',
+                autoInsertCss: false
+            });
+        }
+
+        // Scroll Animations
+        function initScrollAnimations() {
+            // Register ScrollTrigger plugin
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Reveal animations for sections
+            const revealElements = document.querySelectorAll('.reveal-up');
+            
+            revealElements.forEach((element, index) => {
+                gsap.fromTo(element, {
+                    opacity: 0,
+                    y: 50
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    delay: index * 0.1,
+                    scrollTrigger: {
+                        trigger: element,
+                        start: 'top 95%',
+                        end: 'bottom 5%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+            
+            // Text splitting animation
+            Splitting();
+            
+            const splitText = document.querySelector('[data-splitting]');
+            if (splitText) {
+                const chars = splitText.querySelectorAll('.char');
+                
+                gsap.fromTo(chars, {
+                    opacity: 0,
+                    y: 100,
+                    rotateZ: 180
+                }, {
+                    opacity: 1,
+                    y: 0,
+                    rotateZ: 0,
+                    duration: 1,
+                    stagger: 0.05,
+                    ease: "back.out(1.7)",
+                    scrollTrigger: {
+                        trigger: splitText,
+                        start: 'top 80%'
+                    }
+                });
+            }
+            
+            // Parallax effect for decorative patterns
+            gsap.utils.toArray('.decorative-pattern').forEach(pattern => {
+                gsap.to(pattern, {
+                    y: -100,
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: pattern,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: true
+                    }
+                });
+            });
+        }
+
+        // Custom Cursor Trail
+        function initCursorTrail() {
+            const cursorTrail = document.getElementById('cursor-trail');
+            
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(cursorTrail, {
+                    x: e.clientX - 10,
+                    y: e.clientY - 10,
+                    duration: 0.1,
+                    ease: "power2.out"
+                });
+            });
+            
+            // Hide cursor trail when leaving window
+            document.addEventListener('mouseleave', () => {
+                gsap.to(cursorTrail, { opacity: 0 });
+            });
+            
+            document.addEventListener('mouseenter', () => {
+                gsap.to(cursorTrail, { opacity: 1 });
+            });
+        }
+
+        // Navbar Scroll Effect
+        function initNavbarScroll() {
+            const navbar = document.getElementById('navbar');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+        }
+
+        // CTA Button Interactions
+        function initCTAButtons() {
+            const reserveBtn = document.getElementById('reserve-btn');
+            const orderBtn = document.getElementById('order-btn');
+            
+            reserveBtn.addEventListener('click', () => {
+                showNotification('Reservation system opening soon!', 'info');
+                createRippleEffect(reserveBtn);
+            });
+            
+            orderBtn.addEventListener('click', () => {
+                window.location.href = 'menu.html';
+            });
+        }
+
+        function createRippleEffect(button) {
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 215, 0, 0.6);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (rect.width / 2 - size / 2) + 'px';
+            ripple.style.top = (rect.height / 2 - size / 2) + 'px';
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+
+        // Add ripple animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function initAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 200);
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

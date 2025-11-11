@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - TADKA Luxe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #3B0A45 0%, #1B1B1B 50%, #3B0A45 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+        
+        .cart-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+        
+        .quantity-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .delivery-toggle {
+            position: relative;
+            width: 200px;
+            height: 50px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 25px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .delivery-toggle.active {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 96px;
+            height: 42px;
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            border-radius: 21px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3B0A45;
+            font-weight: 600;
+        }
+        
+        .delivery-toggle.pickup .toggle-slider {
+            transform: translateX(98px);
+        }
+        
+        .payment-method {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .payment-method:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+        }
+        
+        .payment-method.selected {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            animation: confetti-fall 3s linear infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .success-animation {
+            animation: success-pulse 0.6s ease-out;
+        }
+        
+        @keyframes success-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                        <span class="text-royal-maroon font-bold text-xl">T</span>
+                    </div>
+                    <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-gold-primary transition-colors duration-300">Home</a>
+                    <a href="menu.html" class="hover:text-gold-primary transition-colors duration-300">Menu</a>
+                    <a href="dashboard.html" class="hover:text-gold-primary transition-colors duration-300">Dashboard</a>
+                    <a href="cart.html" class="text-gold-primary font-semibold">Cart</a>
+                    <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-full font-semibold hover:golden-glow transition-all duration-300">
+                        Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header -->
+            <div class="text-center mb-12 reveal-up">
+                <h1 class="font-display text-5xl md:text-6xl font-bold gradient-text mb-6">
+                    Your Cart
+                </h1>
+                <p class="text-xl max-w-3xl mx-auto opacity-80">
+                    Review your selected dishes and proceed to checkout
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Cart Items -->
+                <div class="lg:col-span-2">
+                    <div class="glass-card rounded-3xl p-6 mb-8 reveal-up">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="font-display text-2xl font-bold">Order Items</h2>
+                            <div class="text-sm opacity-60">
+                                <span id="item-count">0</span> items
+                            </div>
+                        </div>
+                        
+                        <div id="cart-items" class="space-y-4">
+                            <!-- Cart items will be populated by JavaScript -->
+                        </div>
+                        
+                        <div id="empty-cart" class="text-center py-12 hidden">
+                            <div class="text-6xl mb-4">🛒</div>
+                            <h3 class="font-display text-2xl font-bold mb-2">Your cart is empty</h3>
+                            <p class="opacity-80 mb-6">Add some delicious dishes to get started</p>
+                            <a href="menu.html" class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-3 rounded-lg font-semibold hover:golden-glow transition-all">
+                                Browse Menu
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Options -->
+                    <div class="glass-card rounded-3xl p-6 mb-8 reveal-up">
+                        <h2 class="font-display text-2xl font-bold mb-6">Delivery Options</h2>
+                        
+                        <div class="delivery-toggle mx-auto mb-6" id="delivery-toggle">
+                            <div class="toggle-slider">
+                                Delivery
+                            </div>
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-1/2 text-center text-sm font-semibold text-ivory">Delivery</div>
+                                <div class="w-1/2 text-center text-sm font-semibold text-ivory">Pickup</div>
+                            </div>
+                        </div>
+                        
+                        <div id="delivery-address" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Delivery Address</label>
+                                <input type="text" id="address" value="123 MG Road, Bangalore" 
+                                       class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory placeholder-ivory/60 focus:outline-none focus:border-gold-primary">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">City</label>
+                                    <input type="text" id="city" value="Bangalore" 
+                                           class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory placeholder-ivory/60 focus:outline-none focus:border-gold-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">PIN Code</label>
+                                    <input type="text" id="pincode" value="560001" 
+                                           class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory placeholder-ivory/60 focus:outline-none focus:border-gold-primary">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="pickup-time" class="hidden space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Preferred Pickup Time</label>
+                                <select class="w-full bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-4 py-3 text-ivory focus:outline-none focus:border-gold-primary">
+                                    <option>ASAP (30 minutes)</option>
+                                    <option>45 minutes</option>
+                                    <option>1 hour</option>
+                                    <option>1.5 hours</option>
+                                </select>
+                            </div>
+                            <div class="bg-gold-primary/10 rounded-lg p-4">
+                                <div class="text-sm font-semibold text-gold-primary mb-1">Pickup Location</div>
+                                <div class="text-sm opacity-80">TADKA Luxe Kitchen, Koramangala</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="glass-card rounded-3xl p-6 sticky top-24 reveal-up">
+                        <h2 class="font-display text-2xl font-bold mb-6">Order Summary</h2>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between">
+                                <span>Subtotal</span>
+                                <span id="subtotal">₹0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Delivery Fee</span>
+                                <span id="delivery-fee">₹49</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>GST (5%)</span>
+                                <span id="tax">₹0</span>
+                            </div>
+                            <div class="border-t border-gold-primary/20 pt-4">
+                                <div class="flex justify-between font-bold text-lg">
+                                    <span>Total</span>
+                                    <span id="total" class="text-gold-primary">₹0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Promo Code -->
+                        <div class="mb-6">
+                            <div class="flex gap-2">
+                                <input type="text" id="promo-code" placeholder="Promo code" 
+                                       class="flex-1 bg-royal-maroon/30 border border-gold-primary/30 rounded-lg px-3 py-2 text-ivory placeholder-ivory/60 focus:outline-none focus:border-gold-primary text-sm">
+                                <button id="apply-promo" class="bg-gold-primary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all text-sm">
+                                    Apply
+                                </button>
+                            </div>
+                            <div id="promo-message" class="text-sm mt-2 hidden"></div>
+                        </div>
+                        
+                        <!-- Payment Methods -->
+                        <div class="mb-6">
+                            <h3 class="font-semibold mb-3">Payment Method</h3>
+                            <div class="space-y-2">
+                                <div class="payment-method glass-card rounded-lg p-3 border-2 border-transparent selected" data-method="razorpay">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-5 h-5 rounded-full border-2 border-gold-primary flex items-center justify-center">
+                                            <div class="w-2 h-2 rounded-full bg-gold-primary"></div>
+                                        </div>
+                                        <span>Razorpay</span>
+                                        <span class="text-xs opacity-60 ml-auto">UPI, Cards, Wallet</span>
+                                    </div>
+                                </div>
+                                <div class="payment-method glass-card rounded-lg p-3 border-2 border-transparent" data-method="cod">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-5 h-5 rounded-full border-2 border-gold-primary/30 flex items-center justify-center">
+                                            <div class="w-2 h-2 rounded-full bg-gold-primary opacity-0"></div>
+                                        </div>
+                                        <span>Cash on Delivery</span>
+                                        <span class="text-xs opacity-60 ml-auto">Extra ₹20</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Place Order Button -->
+                        <button id="place-order" class="w-full bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-4 rounded-lg font-bold text-lg hover:golden-glow transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            Place Order
+                        </button>
+                        
+                        <div class="text-center mt-4">
+                            <div class="text-xs opacity-60">
+                                🔒 Secure payment with SSL encryption
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="glass-card rounded-3xl p-8 max-w-md w-full text-center success-animation">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="font-display text-3xl font-bold gradient-text mb-4">Order Placed!</h2>
+            <p class="text-lg mb-6 opacity-80">Your delicious meal is on its way!</p>
+            
+            <div class="bg-royal-maroon/30 rounded-lg p-4 mb-6">
+                <div class="text-sm opacity-60 mb-2">Order Number</div>
+                <div class="font-bold text-gold-primary text-xl" id="order-number">#TDL-2025-001</div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button id="track-order" class="flex-1 bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon py-3 rounded-lg font-semibold hover:golden-glow transition-all">
+                    Track Order
+                </button>
+                <button id="close-success" class="px-6 py-3 border border-gold-primary rounded-lg hover:bg-gold-primary/10 transition-all">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">T</span>
+                </div>
+                <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+            </div>
+            <p class="text-sm opacity-60">
+                © 2025 TADKA Luxe. Redefining premium Indian dining experiences.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Cart page specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initCartPage();
+            initDeliveryToggle();
+            initPromoCode();
+            initPaymentMethods();
+            initOrderPlacement();
+            initAnimations();
+        });
+
+        let cart = JSON.parse(localStorage.getItem('tadka-cart')) || [];
+        let isDelivery = true;
+        let selectedPaymentMethod = 'razorpay';
+        let promoDiscount = 0;
+
+        function initCartPage() {
+            renderCartItems();
+            updateOrderSummary();
+        }
+
+        function renderCartItems() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const emptyCart = document.getElementById('empty-cart');
+            const itemCount = document.getElementById('item-count');
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '';
+                emptyCart.classList.remove('hidden');
+                itemCount.textContent = '0';
+                return;
+            }
+
+            emptyCart.classList.add('hidden');
+            itemCount.textContent = cart.length;
+
+            cartItemsContainer.innerHTML = cart.map((item, index) => `
+                <div class="cart-item glass-card rounded-2xl p-4">
+                    <div class="flex items-center space-x-4">
+                        <img src="${item.image}" alt="${item.title}" class="w-20 h-20 rounded-xl object-cover">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-lg mb-1">${item.title}</h3>
+                            <div class="text-gold-primary font-bold text-xl">₹${item.price}</div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button class="quantity-btn w-8 h-8 rounded-full border border-gold-primary/30 flex items-center justify-center" 
+                                    onclick="updateQuantity(${index}, -1)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                            <span class="w-8 text-center font-semibold">${item.quantity}</span>
+                            <button class="quantity-btn w-8 h-8 rounded-full border border-gold-primary/30 flex items-center justify-center" 
+                                    onclick="updateQuantity(${index}, 1)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <button class="text-red-400 hover:text-red-300 transition-colors p-2" onclick="removeItem(${index})">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateQuantity(index, change) {
+            cart[index].quantity += change;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem('tadka-cart', JSON.stringify(cart));
+            renderCartItems();
+            updateOrderSummary();
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            localStorage.setItem('tadka-cart', JSON.stringify(cart));
+            renderCartItems();
+            updateOrderSummary();
+            showNotification('Item removed from cart', 'info');
+        }
+
+        function updateOrderSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = isDelivery ? 49 : 0;
+            const tax = Math.round(subtotal * 0.05);
+            const total = subtotal + deliveryFee + tax - promoDiscount;
+
+            document.getElementById('subtotal').textContent = `₹${subtotal}`;
+            document.getElementById('delivery-fee').textContent = deliveryFee > 0 ? `₹${deliveryFee}` : 'Free';
+            document.getElementById('tax').textContent = `₹${tax}`;
+            document.getElementById('total').textContent = `₹${total}`;
+
+            // Update place order button
+            const placeOrderBtn = document.getElementById('place-order');
+            if (cart.length === 0) {
+                placeOrderBtn.disabled = true;
+                placeOrderBtn.textContent = 'Cart is Empty';
+            } else {
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.textContent = `Place Order • ₹${total}`;
+            }
+        }
+
+        function initDeliveryToggle() {
+            const toggle = document.getElementById('delivery-toggle');
+            const deliveryAddress = document.getElementById('delivery-address');
+            const pickupTime = document.getElementById('pickup-time');
+
+            toggle.addEventListener('click', () => {
+                isDelivery = !isDelivery;
+                toggle.classList.toggle('pickup');
+                
+                if (isDelivery) {
+                    deliveryAddress.classList.remove('hidden');
+                    pickupTime.classList.add('hidden');
+                } else {
+                    deliveryAddress.classList.add('hidden');
+                    pickupTime.classList.remove('hidden');
+                }
+                
+                updateOrderSummary();
+            });
+        }
+
+        function initPromoCode() {
+            const promoInput = document.getElementById('promo-code');
+            const applyBtn = document.getElementById('apply-promo');
+            const promoMessage = document.getElementById('promo-message');
+
+            const promoCodes = {
+                'WELCOME25': { discount: 25, type: 'percentage', minOrder: 200 },
+                'FIRST50': { discount: 50, type: 'fixed', minOrder: 300 },
+                'FESTIVE100': { discount: 100, type: 'fixed', minOrder: 500 }
+            };
+
+            applyBtn.addEventListener('click', () => {
+                const code = promoInput.value.toUpperCase().trim();
+                
+                if (!code) {
+                    showPromoMessage('Please enter a promo code', 'error');
+                    return;
+                }
+
+                const promo = promoCodes[code];
+                if (!promo) {
+                    showPromoMessage('Invalid promo code', 'error');
+                    return;
+                }
+
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                if (subtotal < promo.minOrder) {
+                    showPromoMessage(`Minimum order ₹${promo.minOrder} required`, 'error');
+                    return;
+                }
+
+                // Apply promo
+                if (promo.type === 'percentage') {
+                    promoDiscount = Math.round(subtotal * promo.discount / 100);
+                } else {
+                    promoDiscount = promo.discount;
+                }
+
+                showPromoMessage(`Promo applied! You saved ₹${promoDiscount}`, 'success');
+                promoInput.disabled = true;
+                applyBtn.textContent = 'Applied';
+                applyBtn.disabled = true;
+                
+                updateOrderSummary();
+            });
+
+            function showPromoMessage(message, type) {
+                promoMessage.textContent = message;
+                promoMessage.className = `text-sm mt-2 ${type === 'success' ? 'text-green-400' : 'text-red-400'}`;
+                promoMessage.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    promoMessage.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        function initPaymentMethods() {
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            
+            paymentMethods.forEach(method => {
+                method.addEventListener('click', () => {
+                    paymentMethods.forEach(m => {
+                        m.classList.remove('selected');
+                        m.querySelector('.w-2').classList.add('opacity-0');
+                    });
+                    
+                    method.classList.add('selected');
+                    method.querySelector('.w-2').classList.remove('opacity-0');
+                    
+                    selectedPaymentMethod = method.dataset.method;
+                });
+            });
+        }
+
+        function initOrderPlacement() {
+            const placeOrderBtn = document.getElementById('place-order');
+            const successModal = document.getElementById('success-modal');
+            
+            placeOrderBtn.addEventListener('click', async () => {
+                if (cart.length === 0) return;
+                
+                // Show loading state
+                placeOrderBtn.textContent = 'Processing...';
+                placeOrderBtn.disabled = true;
+                
+                // Simulate payment processing
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Generate order number
+                const orderNumber = `#TDL-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+                document.getElementById('order-number').textContent = orderNumber;
+                
+                // Clear cart
+                cart = [];
+                localStorage.setItem('tadka-cart', JSON.stringify(cart));
+                
+                // Show success modal
+                successModal.classList.remove('hidden');
+                successModal.classList.add('flex');
+                
+                // Create confetti
+                createConfetti();
+                
+                // Reset button
+                placeOrderBtn.textContent = 'Place Order';
+                placeOrderBtn.disabled = false;
+            });
+            
+            // Success modal handlers
+            document.getElementById('track-order').addEventListener('click', () => {
+                showNotification('Order tracking feature coming soon!', 'info');
+                successModal.classList.add('hidden');
+                successModal.classList.remove('flex');
+            });
+            
+            document.getElementById('close-success').addEventListener('click', () => {
+                successModal.classList.add('hidden');
+                successModal.classList.remove('flex');
+                renderCartItems();
+                updateOrderSummary();
+            });
+        }
+
+        function createConfetti() {
+            const colors = ['#FFD700', '#F6C90E', '#FFF8E7', '#3B0A45', '#B8860B'];
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    top: -10px;
+                    width: 10px;
+                    height: 10px;
+                    background: ${colors[Math.floor(Math.random() * colors.length)]};
+                    animation: confetti-fall ${Math.random() * 2 + 2}s linear;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        function initAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 100);
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

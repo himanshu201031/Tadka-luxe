@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TADKA Luxe</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-maroon': '#3B0A45',
+                        'gold-primary': '#FFD700',
+                        'gold-secondary': '#F6C90E',
+                        'ivory': '#FFF8E7',
+                        'charcoal': '#1B1B1B'
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'accent': ['Cormorant Garamond', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #3B0A45 0%, #1B1B1B 50%, #3B0A45 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(255, 248, 231, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .nav-blur {
+            backdrop-filter: blur(20px);
+            background: rgba(59, 10, 69, 0.9);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #F6C90E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .dish-card {
+            transition: all 0.3s ease;
+        }
+        
+        .dish-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+            to { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+        
+        .quick-action-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action-btn:hover {
+            transform: scale(1.05);
+            background: rgba(255, 215, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="font-body text-ivory">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 nav-blur border-b border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                        <span class="text-royal-maroon font-bold text-xl">T</span>
+                    </div>
+                    <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="hover:text-gold-primary transition-colors duration-300">Home</a>
+                    <a href="menu.html" class="hover:text-gold-primary transition-colors duration-300">Menu</a>
+                    <a href="dashboard.html" class="text-gold-primary font-semibold">Dashboard</a>
+                    <a href="cart.html" class="hover:text-gold-primary transition-colors duration-300">Cart</a>
+                    <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-6 py-2 rounded-full font-semibold hover:golden-glow transition-all duration-300">
+                        Profile
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Welcome Header -->
+            <div class="mb-12 reveal-up">
+                <div class="glass-card rounded-3xl p-8 mb-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="font-display text-4xl font-bold gradient-text mb-2">
+                                Good Evening, Himanshu 👋
+                            </h1>
+                            <p class="text-lg opacity-80">
+                                Ready to discover your next favorite dish?
+                            </p>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-gold-primary">2,450</div>
+                                <div class="text-sm opacity-60">Loyalty Points</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 reveal-up">
+                <button class="quick-action-btn glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-2">🍽️</div>
+                    <div class="font-semibold">Order Again</div>
+                </button>
+                <button class="quick-action-btn glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-2">❤️</div>
+                    <div class="font-semibold">Favorites</div>
+                </button>
+                <button class="quick-action-btn glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-2">🏷️</div>
+                    <div class="font-semibold">Offers</div>
+                </button>
+                <button class="quick-action-btn glass-card rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-2">⭐</div>
+                    <div class="font-semibold">Reviews</div>
+                </button>
+            </div>
+
+            <!-- AI Recommendations Section -->
+            <div class="mb-12 reveal-up">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-display text-3xl font-bold gradient-text">AI Recommendations</h2>
+                    <button id="refresh-recommendations" class="text-gold-primary hover:text-gold-secondary transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6" id="ai-recommendations">
+                    <div class="dish-card glass-card rounded-3xl overflow-hidden">
+                        <img src="resources/dish-butter-chicken.jpg" alt="Butter Chicken" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-display text-xl font-bold">Butter Chicken</h3>
+                                <span class="bg-gold-primary/20 text-gold-primary px-2 py-1 rounded-full text-xs font-semibold">95% Match</span>
+                            </div>
+                            <p class="text-sm opacity-80 mb-4">Rich, creamy tomato-based curry with tender chicken</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gold-primary font-bold text-lg">₹385</span>
+                                <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dish-card glass-card rounded-3xl overflow-hidden">
+                        <img src="resources/dish-palak-paneer.jpg" alt="Palak Paneer" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-display text-xl font-bold">Palak Paneer</h3>
+                                <span class="bg-gold-primary/20 text-gold-primary px-2 py-1 rounded-full text-xs font-semibold">92% Match</span>
+                            </div>
+                            <p class="text-sm opacity-80 mb-4">Fresh spinach curry with soft paneer cubes</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gold-primary font-bold text-lg">₹325</span>
+                                <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dish-card glass-card rounded-3xl overflow-hidden">
+                        <img src="resources/dish-dal-makhani.jpg" alt="Dal Makhani" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-display text-xl font-bold">Dal Makhani</h3>
+                                <span class="bg-gold-primary/20 text-gold-primary px-2 py-1 rounded-full text-xs font-semibold">89% Match</span>
+                            </div>
+                            <p class="text-sm opacity-80 mb-4">Creamy black lentils slow-cooked to perfection</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gold-primary font-bold text-lg">₹295</span>
+                                <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="mb-12 reveal-up">
+                <h2 class="font-display text-3xl font-bold gradient-text mb-6">Recent Orders</h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-4">
+                                <img src="resources/dish-biryani.jpg" alt="Order" class="w-16 h-16 rounded-xl object-cover">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Royal Biryani House</h3>
+                                    <p class="text-sm opacity-60">Ordered 2 days ago</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-gold-primary font-bold">₹685</div>
+                                <div class="text-xs text-green-400">Delivered</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-sm opacity-80">Hyderabadi Chicken Biryani, Raita</div>
+                            <button class="text-gold-primary hover:text-gold-secondary transition-colors font-semibold">
+                                Reorder →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-4">
+                                <img src="resources/dish-tandoori-chicken.jpg" alt="Order" class="w-16 h-16 rounded-xl object-cover">
+                                <div>
+                                    <h3 class="font-semibold text-lg">Butter Chicken Co</h3>
+                                    <p class="text-sm opacity-60">Ordered 5 days ago</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-gold-primary font-bold">₹485</div>
+                                <div class="text-xs text-green-400">Delivered</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-sm opacity-80">Tandoori Chicken, Naan</div>
+                            <button class="text-gold-primary hover:text-gold-secondary transition-colors font-semibold">
+                                Reorder →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Dashboard -->
+            <div class="mb-12 reveal-up">
+                <h2 class="font-display text-3xl font-bold gradient-text mb-6">Your Dining Insights</h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="font-semibold text-lg mb-4">Favorite Cuisines</h3>
+                        <div id="cuisine-chart" style="height: 300px;"></div>
+                    </div>
+                    
+                    <div class="glass-card rounded-3xl p-6">
+                        <h3 class="font-semibold text-lg mb-4">Monthly Spending</h3>
+                        <div id="spending-chart" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Offers -->
+            <div class="mb-12 reveal-up">
+                <h2 class="font-display text-3xl font-bold gradient-text mb-6">Live Offers</h2>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="glass-card rounded-3xl p-6 border-2 border-gold-primary/50">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">🎉</div>
+                            <div class="text-xs bg-gold-primary text-royal-maroon px-2 py-1 rounded-full font-bold">NEW</div>
+                        </div>
+                        <h3 class="font-display text-xl font-bold mb-2">Weekend Special</h3>
+                        <p class="text-sm opacity-80 mb-4">Get 25% off on orders above ₹500</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs opacity-60">Valid till Sunday</span>
+                            <button class="text-gold-primary hover:text-gold-secondary transition-colors font-semibold">
+                                Claim Now
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">🏆</div>
+                            <div class="text-xs bg-green-500 text-white px-2 py-1 rounded-full font-bold">ACTIVE</div>
+                        </div>
+                        <h3 class="font-display text-xl font-bold mb-2">Loyalty Bonus</h3>
+                        <p class="text-sm opacity-80 mb-4">Earn double points on your next 3 orders</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs opacity-60">3 orders left</span>
+                            <button class="text-gold-primary hover:text-gold-secondary transition-colors font-semibold">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="text-3xl">🌟</div>
+                            <div class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full font-bold">LIMITED</div>
+                        </div>
+                        <h3 class="font-display text-xl font-bold mb-2">Premium Access</h3>
+                        <p class="text-sm opacity-80 mb-4">Exclusive access to chef's special menu</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs opacity-60">VIP members only</span>
+                            <button class="text-gold-primary hover:text-gold-secondary transition-colors font-semibold">
+                                Upgrade
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Discovery -->
+            <div class="reveal-up">
+                <h2 class="font-display text-3xl font-bold gradient-text mb-6">Discover New Restaurants</h2>
+                
+                <div class="splide" id="discovery-carousel">
+                    <div class="splide__track">
+                        <ul class="splide__list">
+                            <li class="splide__slide">
+                                <div class="dish-card glass-card rounded-3xl overflow-hidden">
+                                    <img src="resources/dish-rogan-josh.jpg" alt="Kashmir Kitchen" class="w-full h-48 object-cover">
+                                    <div class="p-6">
+                                        <h3 class="font-display text-xl font-bold mb-2">Kashmir Kitchen</h3>
+                                        <p class="text-sm opacity-80 mb-4">Authentic Kashmiri cuisine with traditional recipes</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gold-primary font-semibold">★ 4.7 (892 reviews)</span>
+                                            <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                                Explore
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="splide__slide">
+                                <div class="dish-card glass-card rounded-3xl overflow-hidden">
+                                    <img src="resources/dish-samosa.jpg" alt="Street Food Junction" class="w-full h-48 object-cover">
+                                    <div class="p-6">
+                                        <h3 class="font-display text-xl font-bold mb-2">Street Food Junction</h3>
+                                        <p class="text-sm opacity-80 mb-4">Popular Indian street food with modern twist</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gold-primary font-semibold">★ 4.5 (1.2k reviews)</span>
+                                            <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                                Explore
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="splide__slide">
+                                <div class="dish-card glass-card rounded-3xl overflow-hidden">
+                                    <img src="resources/dish-jalebi.jpg" alt="Sweet Traditions" class="w-full h-48 object-cover">
+                                    <div class="p-6">
+                                        <h3 class="font-display text-xl font-bold mb-2">Sweet Traditions</h3>
+                                        <p class="text-sm opacity-80 mb-4">Authentic Indian desserts and sweets</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gold-primary font-semibold">★ 4.8 (756 reviews)</span>
+                                            <button class="bg-gradient-to-r from-gold-primary to-gold-secondary text-royal-maroon px-4 py-2 rounded-lg font-semibold hover:golden-glow transition-all">
+                                                Explore
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gold-primary/20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center space-x-2 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-gold-primary to-gold-secondary rounded-full flex items-center justify-center">
+                    <span class="text-royal-maroon font-bold text-xl">T</span>
+                </div>
+                <span class="font-display text-2xl font-bold gradient-text">TADKA Luxe</span>
+            </div>
+            <p class="text-sm opacity-60">
+                © 2025 TADKA Luxe. Redefining premium Indian dining experiences.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Dashboard specific JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            initDashboardAnimations();
+            initCharts();
+            initCarousel();
+            initInteractions();
+        });
+
+        function initDashboardAnimations() {
+            // Reveal animations
+            const revealElements = document.querySelectorAll('.reveal-up');
+            revealElements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('revealed');
+                }, index * 100);
+            });
+        }
+
+        function initCharts() {
+            // Cuisine preference chart
+            const cuisineChart = echarts.init(document.getElementById('cuisine-chart'));
+            const cuisineOption = {
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        { value: 35, name: 'North Indian', itemStyle: { color: '#FFD700' } },
+                        { value: 25, name: 'South Indian', itemStyle: { color: '#F6C90E' } },
+                        { value: 20, name: 'Street Food', itemStyle: { color: '#D4AF37' } },
+                        { value: 20, name: 'Desserts', itemStyle: { color: '#B8860B' } }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(255, 215, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+            cuisineChart.setOption(cuisineOption);
+
+            // Spending chart
+            const spendingChart = echarts.init(document.getElementById('spending-chart'));
+            const spendingOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(59, 10, 69, 0.9)',
+                    borderColor: '#FFD700',
+                    textStyle: { color: '#FFF8E7' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#FFD700' } },
+                    axisLabel: { color: '#FFF8E7' },
+                    splitLine: { lineStyle: { color: 'rgba(255, 215, 0, 0.2)' } }
+                },
+                series: [{
+                    data: [1200, 1900, 1500, 2200, 1800, 2400],
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: { color: '#FFD700', width: 3 },
+                    itemStyle: { color: '#FFD700' },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(255, 215, 0, 0.3)' },
+                                { offset: 1, color: 'rgba(255, 215, 0, 0.1)' }
+                            ]
+                        }
+                    }
+                }]
+            };
+            spendingChart.setOption(spendingOption);
+
+            // Resize charts on window resize
+            window.addEventListener('resize', () => {
+                cuisineChart.resize();
+                spendingChart.resize();
+            });
+        }
+
+        function initCarousel() {
+            new Splide('#discovery-carousel', {
+                type: 'loop',
+                perPage: 3,
+                perMove: 1,
+                gap: '2rem',
+                autoplay: true,
+                interval: 5000,
+                pauseOnHover: true,
+                breakpoints: {
+                    1024: { perPage: 2 },
+                    640: { perPage: 1 }
+                }
+            }).mount();
+        }
+
+        function initInteractions() {
+            // Refresh recommendations
+            document.getElementById('refresh-recommendations')?.addEventListener('click', function() {
+                this.style.transform = 'rotate(360deg)';
+                this.style.transition = 'transform 0.5s ease';
+                
+                setTimeout(() => {
+                    this.style.transform = 'rotate(0deg)';
+                    showNotification('Recommendations updated!', 'success');
+                }, 500);
+            });
+
+            // Quick action buttons
+            document.querySelectorAll('.quick-action-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.querySelector('div:last-child').textContent;
+                    showNotification(`${action} feature coming soon!`, 'info');
+                });
+            });
+
+            // Add to cart buttons
+            document.querySelectorAll('button').forEach(btn => {
+                if (btn.textContent.includes('Add to Cart')) {
+                    btn.addEventListener('click', function() {
+                        showNotification('Added to cart!', 'success');
+                        
+                        // Animation feedback
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 150);
+                    });
+                }
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500'
+            };
+            
+            notification.className = `fixed top-20 right-6 z-50 px-6 py-3 rounded-lg font-semibold text-white transform translate-x-full transition-transform duration-300 ${colors[type]}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
