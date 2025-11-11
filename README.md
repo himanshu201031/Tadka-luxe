@@ -4,7 +4,8 @@
 
 Tadka Luxe is a **modern SaaS-based restaurant management and dining experience app** designed for Indian restaurants. It combines **beautiful UI, smooth animations, real-time order management**, and **AI-driven personalization** to elevate the dining and management experience for customers and restaurant owners alike.
 
----
+[Demo link](https://c3fsynx3i5g7k.ok.kimi.link/)
+
 
 ## 🌟 **Overview**
 
