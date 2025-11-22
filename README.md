@@ -6,6 +6,9 @@ Tadka Luxe is a **modern SaaS-based restaurant management and dining experience 
 
 [Demo link](https://c3fsynx3i5g7k.ok.kimi.link/)
 
+<img src="./assets/homepage.png" alt="Tadka Luxe Demo" width="600"/>
+<img src="./assets/menu.png" alt="Tadka Luxe Demo" width="600"/>
+<img src="./assets/Dashboard.png" alt="Tadka Luxe Demo" width="600"/>
 
 ## 🌟 **Overview**
 
